@@ -66,6 +66,10 @@ cd frontend && npm install && npm start    # http://localhost:4200, /api proxied
   time can't both succeed: the `rowversion` makes the second save fail, the service retries with fresh data and
   answers "sold out". The total price is frozen at booking time. Business rules live in `ReservationService`;
   status changes (check-in, check-out, no-show, cancel) are explicit actions with their own rules.
+- **Booking starts from availability, not from guessed dates.** The booking form shows a two-month calendar for
+  the chosen room type with free rooms and price per night (same data as the inventory grid). The user clicks the
+  check-in and then the check-out; the calendar only allows stays where every night has enough rooms (the check-out
+  day itself isn't slept, so it can be a full day) and the quote updates as soon as the range is complete.
 - **Demo inventory (~1.2M rows) and reservations (~440k) are seeded with set-based SQL** instead of EF: generating that many
   entities in memory would take minutes. Data is relative to the day the DB is created (a week back, a month ahead).
   The inventory counters are then recalculated from the reservations, so both always match.

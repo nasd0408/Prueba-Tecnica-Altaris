@@ -36,3 +36,24 @@ export function isWeekend(iso: string): boolean {
   const day = parseIsoDate(iso).getDay();
   return day === 0 || day === 6;
 }
+
+// ---------- Months (calendar views) ----------
+
+export function startOfMonth(iso: string): string {
+  return `${iso.slice(0, 7)}-01`;
+}
+
+export function addMonths(iso: string, months: number): string {
+  const date = parseIsoDate(startOfMonth(iso));
+  date.setMonth(date.getMonth() + months);
+  return toIsoDate(date);
+}
+
+export function endOfMonth(iso: string): string {
+  return addDays(addMonths(iso, 1), -1);
+}
+
+export function daysBetween(from: string, to: string): number {
+  // Math.round: protects against the 23/25-hour days of daylight saving changes.
+  return Math.round((parseIsoDate(to).getTime() - parseIsoDate(from).getTime()) / 86_400_000);
+}

@@ -347,6 +347,25 @@ export const en = {
   },
 
   reservations: {
+    calendar: {
+      pickCheckIn: 'Select the check-in date.',
+      pickCheckOut: 'Now select the check-out date',
+      until: 'up to {date}',
+      clear: 'Clear dates',
+      previousMonth: 'Previous month',
+      nextMonth: 'Next month',
+      free: { one: '{count} room free', other: '{count} rooms free' },
+      full: 'Full',
+      soldOut: 'not enough rooms',
+      noInventory: 'no inventory loaded',
+      legendAvailable: 'Available',
+      legendFew: 'Last rooms',
+      legendSoldOut: 'Full',
+      legendNone: 'No inventory',
+      legendSelected: 'Your stay',
+      legendNote: 'Price per night · free rooms in the corner',
+      selectRoomFirst: 'Select a room type to see when it is available.',
+    },
     list: {
       title: 'Reservations',
       subtitle: 'Search by code, guest or hotel. Filter by status and dates.',

@@ -348,6 +348,25 @@ export const es: Dictionary = {
   },
 
   reservations: {
+    calendar: {
+      pickCheckIn: 'Elige la fecha de entrada.',
+      pickCheckOut: 'Ahora elige la fecha de salida',
+      until: 'hasta el {date}',
+      clear: 'Borrar fechas',
+      previousMonth: 'Mes anterior',
+      nextMonth: 'Mes siguiente',
+      free: { one: '{count} habitación libre', other: '{count} habitaciones libres' },
+      full: 'Completo',
+      soldOut: 'no hay habitaciones suficientes',
+      noInventory: 'sin inventario cargado',
+      legendAvailable: 'Disponible',
+      legendFew: 'Últimas habitaciones',
+      legendSoldOut: 'Completo',
+      legendNone: 'Sin inventario',
+      legendSelected: 'Tu estancia',
+      legendNote: 'Precio por noche · habitaciones libres en la esquina',
+      selectRoomFirst: 'Elige un tipo de habitación para ver cuándo está disponible.',
+    },
     list: {
       title: 'Reservas',
       subtitle: 'Busca por código, huésped u hotel. Filtra por estado y fechas.',

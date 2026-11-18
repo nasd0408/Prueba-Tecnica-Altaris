@@ -81,7 +81,22 @@
             </div>
           </div>
         </div>
-        <div class="grid-2">
+        <!-- Availability calendar: shows when there's space and the price per night, and is the
+             main way to pick the dates. The inputs below stay for typing / keyboard use. -->
+        @if (hotel() && form.controls.roomId.value) {
+          <app-stay-calendar
+            [hotelId]="hotel()!.id"
+            [roomId]="form.controls.roomId.value"
+            [rooms]="formValue().rooms"
+            [checkIn]="formValue().checkIn || null"
+            [checkOut]="formValue().checkOut || null"
+            (rangeChange)="onStayChange($event)"
+          />
+        } @else if (hotel()) {
+          <p class="calendar-placeholder muted">{{ 'reservations.calendar.selectRoomFirst' | t }}</p>
+        }
+
+        <div class="grid-2 date-inputs">
           <div class="field">
             <label for="check-in">{{ 'reservations.form.checkIn' | t }}</label>
             <input id="check-in" type="date" [min]="minDate" formControlName="checkIn" (change)="onCheckInChange()" />

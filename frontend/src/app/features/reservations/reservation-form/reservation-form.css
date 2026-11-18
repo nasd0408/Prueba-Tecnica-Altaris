@@ -159,3 +159,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+.calendar-placeholder {
+  margin: 0 0 16px;
+  padding: 18px;
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+
+app-stay-calendar {
+  display: block;
+  margin-bottom: 16px;
+}

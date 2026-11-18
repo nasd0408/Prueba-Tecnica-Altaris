@@ -1,0 +1,106 @@
+<div class="calendar" [class.is-loading]="loading()">
+  <div class="calendar-bar">
+    <button
+      type="button"
+      class="btn btn-sm btn-icon"
+      (click)="previousMonth()"
+      [disabled]="!canGoBack()"
+      [attr.aria-label]="'reservations.calendar.previousMonth' | t"
+      [title]="'reservations.calendar.previousMonth' | t"
+    >
+      <app-icon name="chevronLeft" [size]="16" />
+    </button>
+
+    <p class="status" aria-live="polite">
+      @if (hintKey()) {
+        {{ hintKey() | t }}
+        @if (maxCheckOut(); as max) {
+          <span class="muted">({{ 'reservations.calendar.until' | t: { date: formatDate(max) } }})</span>
+        }
+      } @else {
+        <strong>{{ formatDate(checkIn()!) }} → {{ formatDate(checkOut()!) }}</strong>
+        <span class="muted">· {{ 'common.nights' | t: { count: nights() } }}</span>
+      }
+      @if (checkIn()) {
+        <button type="button" class="link-button clear" (click)="clear()">{{ 'reservations.calendar.clear' | t }}</button>
+      }
+    </p>
+
+    <button
+      type="button"
+      class="btn btn-sm btn-icon"
+      (click)="nextMonth()"
+      [attr.aria-label]="'reservations.calendar.nextMonth' | t"
+      [title]="'reservations.calendar.nextMonth' | t"
+    >
+      <app-icon name="chevronRight" [size]="16" />
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <div class="months" (mouseleave)="hoverDate.set(null)">
+    @for (month of months(); track month.key) {
+      <div class="month">
+        <p class="month-title">{{ month.title }}</p>
+        <div class="weekdays" aria-hidden="true">
+          @for (w of weekdays; track $index) {
+            <span>{{ w }}</span>
+          }
+        </div>
+        <div class="days" role="grid" [attr.aria-label]="month.title">
+          @for (o of month.offset; track o) {
+            <span class="pad"></span>
+          }
+          @for (cell of month.cells; track cell.date) {
+            <button
+              type="button"
+              [class]="'day ' + cell.state"
+              [class.selectable]="cell.selectable"
+              [class.check-in]="cell.isCheckIn"
+              [class.check-out]="cell.isCheckOut"
+              [class.in-range]="cell.inRange"
+              [class.today]="cell.isToday"
+              [disabled]="!cell.selectable"
+              [attr.aria-label]="cell.label"
+              [attr.aria-pressed]="cell.isCheckIn || cell.isCheckOut"
+              [title]="cell.label"
+              (click)="select(cell)"
+              (mouseenter)="hoverDate.set(cell.date)"
+              (focus)="hoverDate.set(cell.date)"
+            >
+              <span class="num">{{ cell.dayOfMonth }}</span>
+              @switch (cell.state) {
+                @case ('available') {
+                  <span class="price">{{ cell.price }}</span>
+                  <span class="free">{{ cell.available }}</span>
+                }
+                @case ('few') {
+                  <span class="price">{{ cell.price }}</span>
+                  <span class="free">{{ cell.available }}</span>
+                }
+                @case ('soldout') {
+                  <span class="tag-text">{{ 'reservations.calendar.full' | t }}</span>
+                }
+                @case ('none') {
+                  <span class="tag-text">—</span>
+                }
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch available"></i>{{ 'reservations.calendar.legendAvailable' | t }}</span>
+    <span><i class="swatch few"></i>{{ 'reservations.calendar.legendFew' | t }}</span>
+    <span><i class="swatch soldout"></i>{{ 'reservations.calendar.legendSoldOut' | t }}</span>
+    <span><i class="swatch none"></i>{{ 'reservations.calendar.legendNone' | t }}</span>
+    <span><i class="swatch selected"></i>{{ 'reservations.calendar.legendSelected' | t }}</span>
+    <span class="legend-note">{{ 'reservations.calendar.legendNote' | t }}</span>
+  </div>
+</div>

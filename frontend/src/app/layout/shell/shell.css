@@ -4,22 +4,6 @@
   overflow: hidden;
 }
 
-/* Only visible when focused with the keyboard: jumps over the menu to the page content. */
-.skip-link {
-  position: absolute;
-  left: 8px;
-  top: -40px;
-  z-index: 100;
-  padding: 6px 12px;
-  background: var(--primary);
-  color: #fff;
-  border-radius: var(--radius);
-}
-
-.skip-link:focus {
-  top: 8px;
-}
-
 /* ---------- Sidebar ---------- */
 
 .sidebar {

@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
@@ -17,13 +17,14 @@ import { ReservationService } from '../../../core/services/reservation.service';
 import { RoomService } from '../../../core/services/room.service';
 import { addDays, today } from '../../../core/utils/dates';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
+import { StayCalendar, StayRange } from '../stay-calendar/stay-calendar';
 
 // Booking form in three steps on one page: pick the hotel, pick room + dates (a live quote
 // shows availability and price per night), then guest details. The "Book" button only enables
 // when the quote says it can be booked; the API checks everything again anyway.
 @Component({
   selector: 'app-reservation-form',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, TranslatePipe, StayCalendar],
   templateUrl: './reservation-form.html',
   styleUrl: './reservation-form.css',
 })
@@ -50,14 +51,20 @@ export class ReservationForm implements OnInit {
 
   readonly form = inject(NonNullableFormBuilder).group({
     roomId: [0, [Validators.required, Validators.min(1)]],
-    checkIn: [today(), Validators.required],
-    checkOut: [addDays(today(), 2), Validators.required],
+    // Empty on purpose: the user picks the stay in the availability calendar.
+    checkIn: ['', Validators.required],
+    checkOut: ['', Validators.required],
     rooms: [1, [Validators.required, Validators.min(1), Validators.max(20)]],
     guests: [2, [Validators.required, Validators.min(1), Validators.max(100)]],
     guestName: ['', [Validators.required, Validators.maxLength(150)]],
     guestEmail: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
     guestPhone: ['', Validators.maxLength(30)],
     notes: ['', Validators.maxLength(500)],
+  });
+
+  // The form values as a signal, so the calendar's inputs follow what's typed in the form.
+  readonly formValue = toSignal(this.form.valueChanges.pipe(map(() => this.form.getRawValue())), {
+    initialValue: this.form.getRawValue(),
   });
 
   readonly saving = signal(false);
@@ -147,6 +154,11 @@ export class ReservationForm implements OnInit {
     this.rooms.set([]);
     this.quote.set(null);
     this.form.controls.roomId.setValue(0);
+  }
+
+  // Dates picked in the calendar go into the form, which triggers the quote as usual.
+  onStayChange(range: StayRange | null): void {
+    this.form.patchValue({ checkIn: range?.checkIn ?? '', checkOut: range?.checkOut ?? '' });
   }
 
   // Check-out follows check-in: moving the arrival past the departure pushes the departure.
