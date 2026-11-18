@@ -1,0 +1,113 @@
+<div class="page-header">
+  <div>
+    <h1>Hotels</h1>
+    <p class="page-subtitle">Hotel catalogue. Search by name or city, filter by country and category.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/hotels/new">New hotel</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  <!-- [selected] on each option (not [value] on the select) because the country list
+       arrives async: the options may not exist yet when the value is first applied. -->
+  <div class="toolbar">
+    <input
+      type="search"
+      class="search"
+      placeholder="Search by name or city"
+      [formControl]="searchControl"
+    />
+
+    <select (change)="onCountryChange($any($event.target).value)">
+      <option value="">All countries</option>
+      @for (country of countries(); track country) {
+        <option [value]="country" [selected]="country === query().country">{{ country }}</option>
+      }
+    </select>
+
+    <select (change)="onStarsChange($any($event.target).value)">
+      <option value="">Any category</option>
+      @for (s of starOptions; track s) {
+        <option [value]="s" [selected]="s === query().stars">{{ s }} {{ s === 1 ? 'star' : 'stars' }}</option>
+      }
+    </select>
+
+    <button type="button" class="btn" (click)="clearFilters()">Clear filters</button>
+
+    @if (result(); as r) {
+      <span class="result-count muted">
+        {{ r.totalCount.toLocaleString() }} {{ r.totalCount === 1 ? 'hotel' : 'hotels' }}
+      </span>
+    }
+  </div>
+
+  @if (result(); as r) {
+    <div class="table-wrap">
+      <table [class.loading]="loading()">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (hotel of r.items; track hotel.id) {
+            <tr>
+              <td class="name">{{ hotel.name }}</td>
+              <td>{{ hotel.city }}</td>
+              <td>{{ hotel.country }}</td>
+              <td class="stars" [title]="hotel.stars + ' stars'">{{ stars(hotel.stars) }}</td>
+              <td>
+                @if (hotel.isActive) {
+                  <span class="badge badge-success">Active</span>
+                } @else {
+                  <span class="badge badge-neutral">Inactive</span>
+                }
+              </td>
+              <td class="actions">
+                <a [routerLink]="['/hotels', hotel.id, 'edit']">Edit</a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty muted">No hotels match these filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <label class="page-size">
+        Rows per page
+        <select (change)="onPageSizeChange($any($event.target).value)">
+          @for (size of pageSizes; track size) {
+            <option [value]="size" [selected]="size === query().pageSize">{{ size }}</option>
+          }
+        </select>
+      </label>
+
+      <span class="page-info">Page {{ r.page }} of {{ r.totalPages || 1 }}</span>
+
+      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(1)">First</button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(r.page - 1)">
+        Previous
+      </button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.page + 1)">
+        Next
+      </button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.totalPages)">
+        Last
+      </button>
+    </div>
+  } @else if (loading()) {
+    <p class="empty muted">Loading hotels...</p>
+  }
+</div>

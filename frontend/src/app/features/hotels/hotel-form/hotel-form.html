@@ -1,0 +1,99 @@
+<div class="page-header">
+  <div>
+    <h1>{{ isEdit ? 'Edit hotel' : 'New hotel' }}</h1>
+    <p class="page-subtitle">
+      <a routerLink="/hotels">Hotels</a> / {{ isEdit ? 'Edit' : 'New' }}
+    </p>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="card-body">
+    <h2 class="section-title">General information</h2>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" formControlName="name" />
+      @if (showError('name')) {
+        <span class="field-error">Name is required (max. 150 characters).</span>
+      }
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="stars">Category</label>
+        <select id="stars" formControlName="stars">
+          @for (s of starOptions; track s) {
+            <option [ngValue]="s">{{ s }} {{ s === 1 ? 'star' : 'stars' }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field checkbox-field">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="isActive" />
+          Active (available for new bookings)
+        </label>
+      </div>
+    </div>
+
+    <h2 class="section-title">Location</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="city">City</label>
+        <input id="city" formControlName="city" />
+        @if (showError('city')) {
+          <span class="field-error">City is required.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="country">Country</label>
+        <!-- datalist: suggests existing countries but still lets the user type a new one -->
+        <input id="country" formControlName="country" list="country-list" />
+        <datalist id="country-list">
+          @for (c of countries(); track c) {
+            <option [value]="c"></option>
+          }
+        </datalist>
+        @if (showError('country')) {
+          <span class="field-error">Country is required.</span>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="address">Address <span class="optional">(optional)</span></label>
+      <input id="address" formControlName="address" />
+    </div>
+
+    <h2 class="section-title">Contact</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="email">Email <span class="optional">(optional)</span></label>
+        <input id="email" type="email" formControlName="email" />
+        @if (showError('email')) {
+          <span class="field-error">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone <span class="optional">(optional)</span></label>
+        <input id="phone" formControlName="phone" />
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a class="btn" routerLink="/hotels">Cancel</a>
+    <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving...' : 'Save hotel' }}
+    </button>
+  </div>
+</form>

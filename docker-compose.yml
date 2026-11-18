@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express" # free edition, enough for a demo (10GB per database)
+      # Demo-only password, inline so the project runs with no extra setup.
+      # In a real environment this would come from a secret / .env file that isn't committed.
+      MSSQL_SA_PASSWORD: "Altairis_Dev_2024!"
+    ports:
+      - "1433:1433" # exposed so the DB can be inspected with SSMS / Azure Data Studio
+    volumes:
+      - sqldata:/var/opt/mssql
+    # SQL Server takes a while to accept connections after the container starts.
+    # The API waits for this check instead of crashing on its first connection attempt.
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build: ./backend
+    environment:
+      ConnectionStrings__Default: "Server=db,1433;Database=Altairis;User Id=sa;Password=Altairis_Dev_2024!;TrustServerCertificate=True"
+    ports:
+      - "5080:8080" # direct access for debugging (e.g. http://localhost:5080/api/hotels)
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+
+volumes:
+  sqldata:

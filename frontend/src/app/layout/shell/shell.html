@@ -1,0 +1,33 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-mark">A</span>
+    <span>Altairis <strong>Backoffice</strong></span>
+  </div>
+
+  <nav>
+    @for (section of navigation; track section.title) {
+      <div class="nav-section">{{ section.title }}</div>
+      @for (item of section.items; track item.path) {
+        <a class="nav-item" [routerLink]="item.path" routerLinkActive="active">{{ item.label }}</a>
+      }
+    }
+  </nav>
+
+  <div class="sidebar-footer">v0.1 &middot; demo</div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <span class="env-tag">Demo environment</span>
+
+    <div class="user">
+      <span class="avatar">{{ initials() }}</span>
+      <span class="user-name">{{ auth.userName() }}</span>
+      <button type="button" class="btn btn-sm" (click)="auth.logout()">Sign out</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

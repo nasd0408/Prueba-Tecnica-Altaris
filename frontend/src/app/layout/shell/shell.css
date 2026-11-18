@@ -1,0 +1,119 @@
+:host {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--topbar-height);
+  padding: 0 16px;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+nav {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  padding: 16px 16px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7f8b99;
+}
+
+.nav-item {
+  display: block;
+  padding: 8px 16px 8px 13px;
+  border-left: 3px solid transparent;
+  color: var(--sidebar-text);
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--primary-light);
+  color: #fff;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 12px 16px;
+  font-size: 11px;
+  color: #6b7785;
+}
+
+.main {
+  flex: 1;
+  min-width: 0; /* lets wide tables scroll inside instead of stretching the page */
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.env-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  padding: 24px;
+}

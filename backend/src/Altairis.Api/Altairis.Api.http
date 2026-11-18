@@ -1,0 +1,39 @@
+@host = http://localhost:5160
+
+# 1. Sign in and copy the accessToken from the response into @token
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "demo2026",
+  "password": "demo2026"
+}
+
+###
+
+@token = paste-access-token-here
+
+GET {{host}}/api/hotels?search=madrid&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+###
+
+GET {{host}}/api/dashboard
+Authorization: Bearer {{token}}
+
+###
+
+POST {{host}}/api/hotels
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Hotel Test",
+  "city": "Sevilla",
+  "country": "Spain",
+  "address": "Calle Sierpes 1",
+  "stars": 4,
+  "email": "info@hoteltest.com",
+  "phone": "+34 954 000 000",
+  "isActive": true
+}

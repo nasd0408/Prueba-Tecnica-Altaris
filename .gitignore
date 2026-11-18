@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+
+# IDE / OS
+.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+!**/.vscode/launch.json
+!**/.vscode/tasks.json
+Thumbs.db
+.DS_Store

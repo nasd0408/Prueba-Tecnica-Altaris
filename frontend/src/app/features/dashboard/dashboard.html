@@ -1,0 +1,90 @@
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="page-subtitle">Overview of the hotel catalogue.</p>
+  </div>
+  <button type="button" class="btn" (click)="load()">Refresh</button>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+@if (summary(); as s) {
+  <div class="kpis">
+    <div class="card kpi">
+      <span class="kpi-label">Hotels in catalogue</span>
+      <span class="kpi-value">{{ s.totalHotels | number }}</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">Active hotels</span>
+      <span class="kpi-value">{{ s.activeHotels | number }}</span>
+      <span class="kpi-note">{{ activeRate() }}% of the catalogue</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">Countries</span>
+      <span class="kpi-value">{{ s.countries }}</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">Cities</span>
+      <span class="kpi-value">{{ s.cities }}</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div class="card-header"><h2>Hotels by country</h2><span class="muted">Top 8</span></div>
+      <div class="card-body">
+        @if (byCountryChart(); as config) {
+          <app-chart [config]="config" [height]="280" />
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>Hotels by category</h2></div>
+      <div class="card-body">
+        @if (byStarsChart(); as config) {
+          <app-chart [config]="config" [height]="280" />
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Latest hotels added</h2>
+      <a routerLink="/hotels">View all</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Status</th>
+            <th>Added</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of s.latestHotels; track h.id) {
+            <tr>
+              <td><a [routerLink]="['/hotels', h.id, 'edit']">{{ h.name }}</a></td>
+              <td>{{ h.city }}</td>
+              <td>{{ h.country }}</td>
+              <td>
+                <span [class]="h.isActive ? 'badge badge-success' : 'badge badge-neutral'">
+                  {{ h.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>{{ h.createdAt | date: 'dd/MM/yyyy' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+} @else if (!error()) {
+  <p class="muted">Loading dashboard...</p>
+}
