@@ -17,6 +17,9 @@ import {
   ReservationStatus,
 } from '../../../core/models/reservation';
 import { ReservationService } from '../../../core/services/reservation.service';
+import { EmptyState } from '../../../shared/empty-state';
+import { Icon } from '../../../shared/icon';
+import { SkeletonRows } from '../../../shared/skeleton';
 import { StatusBadge } from '../../../shared/status-badge';
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -29,7 +32,7 @@ const DATE_TYPES: ReservationDateType[] = ['checkIn', 'checkOut', 'stay', 'creat
 // whenever it changes. The daily operations page links here with pre-set filters.
 @Component({
   selector: 'app-reservation-list',
-  imports: [ReactiveFormsModule, RouterLink, StatusBadge, CurrencyPipe, DatePipe, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, StatusBadge, CurrencyPipe, DatePipe, TranslatePipe, Icon, EmptyState, SkeletonRows],
   templateUrl: './reservation-list.html',
   styleUrl: './reservation-list.css',
 })

@@ -8,10 +8,12 @@ import { translate } from '../../core/i18n/translate';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { DashboardService, DashboardSummary } from '../../core/services/dashboard.service';
 import { ChartView } from '../../shared/chart/chart';
+import { Icon } from '../../shared/icon';
+import { SkeletonRows } from '../../shared/skeleton';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ChartView, RouterLink, DecimalPipe, DatePipe, TranslatePipe],
+  imports: [ChartView, RouterLink, DecimalPipe, DatePipe, TranslatePipe, Icon, SkeletonRows],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

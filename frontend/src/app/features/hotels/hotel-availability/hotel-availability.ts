@@ -11,6 +11,9 @@ import { Hotel } from '../../../core/models/hotel';
 import { AvailabilityService } from '../../../core/services/availability.service';
 import { HotelService } from '../../../core/services/hotel.service';
 import { addDays, eachDay, isWeekend, parseIsoDate, today } from '../../../core/utils/dates';
+import { EmptyState } from '../../../shared/empty-state';
+import { Icon } from '../../../shared/icon';
+import { SkeletonRows } from '../../../shared/skeleton';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 
 // Monday first, as in Spain; values are Date.getDay() numbers (0 = Sunday), which is what the API expects.
@@ -28,7 +31,7 @@ type CellLevel = 'empty' | 'closed' | 'low' | 'mid' | 'high' | 'full';
 // is hard to scan; colours make the tight nights jump out.
 @Component({
   selector: 'app-hotel-availability',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, DecimalPipe, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, DecimalPipe, TranslatePipe, Icon, EmptyState, SkeletonRows],
   templateUrl: './hotel-availability.html',
   styleUrl: './hotel-availability.css',
 })

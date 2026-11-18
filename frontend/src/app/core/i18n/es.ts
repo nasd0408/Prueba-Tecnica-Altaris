@@ -29,6 +29,10 @@ export const es: Dictionary = {
     nights: { one: '{count} noche', other: '{count} noches' },
     dismiss: 'Cerrar',
     to: 'a',
+    goBack: 'Volver',
+    tryAgain: 'Reintentar',
+    noResults: 'Sin resultados',
+    noResultsHint: 'Prueba con otros filtros o límpialos para ver todo.',
   },
 
   nav: {
@@ -45,6 +49,9 @@ export const es: Dictionary = {
     demoEnvironment: 'Entorno de demostración',
     signOut: 'Cerrar sesión',
     version: 'v0.1 · demo',
+    collapse: 'Contraer o expandir el menú',
+    openMenu: 'Abrir menú',
+    skipToContent: 'Ir al contenido',
   },
 
   titles: {
@@ -76,6 +83,8 @@ export const es: Dictionary = {
       password: 'Contraseña',
       passwordRequired: 'Introduce tu contraseña.',
       forgot: '¿Olvidaste la contraseña?',
+      showPassword: 'Mostrar',
+      hidePassword: 'Ocultar',
       submit: 'Entrar',
       submitting: 'Entrando...',
       noAccount: '¿Aún no tienes cuenta?',
@@ -217,6 +226,7 @@ export const es: Dictionary = {
       capacity: 'Capacidad',
       basePriceColumn: 'Precio base / noche',
       empty: 'Este hotel aún no tiene habitaciones a la venta. Añade una para cargar disponibilidad.',
+      emptyTitle: 'Aún no hay habitaciones',
       notFound: 'Hotel no encontrado.',
       backToHotels: 'Volver a hoteles',
       added: 'Habitaciones {type} añadidas.',
@@ -443,8 +453,10 @@ export const es: Dictionary = {
         noShow: 'Marcar como no presentado',
         cancel: 'Cancelar reserva',
       },
-      confirmNoShow: '¿Marcar esta reserva como no presentado? Las noches se siguen cobrando.',
-      confirmCancel: '¿Cancelar la reserva {code}? Las habitaciones vuelven a estar a la venta.',
+      confirmNoShowTitle: '¿Marcar como no presentado?',
+      confirmNoShow: 'Las noches de esta reserva se siguen cobrando.',
+      confirmCancelTitle: '¿Cancelar la reserva {code}?',
+      confirmCancel: 'Las habitaciones vuelven a estar a la venta y no se puede deshacer.',
       done: {
         checkIn: '{code}: check-in realizado.',
         checkOut: '{code}: check-out realizado.',

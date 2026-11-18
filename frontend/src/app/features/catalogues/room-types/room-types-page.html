@@ -6,7 +6,7 @@
     </p>
   </div>
   <button type="button" class="btn btn-primary" (click)="startCreate()" [disabled]="editing() === 'new'">
-    {{ 'catalogues.roomTypes.new' | t }}
+    <app-icon name="plus" [size]="16" />{{ 'catalogues.roomTypes.new' | t }}
   </button>
 </div>
 
@@ -84,7 +84,13 @@
           }
         } @empty {
           <tr>
-            <td colspan="5" class="muted">{{ (loading() ? 'common.loading' : 'catalogues.roomTypes.empty') | t }}</td>
+            <td colspan="5">
+              @if (loading()) {
+                <app-skeleton-rows [rows]="6" [columns]="4" />
+              } @else {
+                <p class="muted">{{ 'catalogues.roomTypes.empty' | t }}</p>
+              }
+            </td>
           </tr>
         }
       </tbody>

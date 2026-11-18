@@ -102,3 +102,15 @@ dd:last-child {
   display: flex;
   gap: 8px;
 }
+
+/* Grid items default to min-width: auto, so a wide table would stretch its column past the
+   screen. min-width: 0 lets the column shrink and the table scroll inside its card. */
+.layout > * {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}

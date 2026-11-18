@@ -10,6 +10,8 @@ import { DailySummary } from '../../core/models/reservation';
 import { ReservationService } from '../../core/services/reservation.service';
 import { addDays, today } from '../../core/utils/dates';
 import { ChartView } from '../../shared/chart/chart';
+import { Icon } from '../../shared/icon';
+import { SkeletonRows } from '../../shared/skeleton';
 
 const TOP_COUNTRIES = 10;
 
@@ -18,7 +20,7 @@ const TOP_COUNTRIES = 10;
 // list with the matching filters, so the user can go from the summary to the actual bookings.
 @Component({
   selector: 'app-daily-operations',
-  imports: [ChartView, RouterLink, DatePipe, DecimalPipe, CurrencyPipe, TranslatePipe],
+  imports: [ChartView, RouterLink, DatePipe, DecimalPipe, CurrencyPipe, TranslatePipe, Icon, SkeletonRows],
   templateUrl: './daily-operations.html',
   styleUrl: './daily-operations.css',
 })

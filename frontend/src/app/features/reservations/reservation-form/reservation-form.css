@@ -147,3 +147,15 @@
     position: static;
   }
 }
+
+/* Same reason as in the hotel page: let grid columns shrink below their content width. */
+.layout > *,
+.grid-2 > * {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

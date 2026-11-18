@@ -98,6 +98,7 @@
   <div class="form-actions">
     <a class="btn" [routerLink]="isEdit ? ['/hotels', id()] : ['/hotels']">{{ 'common.cancel' | t }}</a>
     <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      @if (saving()) { <span class="spinner" aria-hidden="true"></span> }
       {{ (saving() ? 'common.saving' : 'hotels.form.save') | t }}
     </button>
   </div>

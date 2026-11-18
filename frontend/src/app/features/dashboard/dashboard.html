@@ -3,7 +3,7 @@
     <h1>{{ 'dashboard.title' | t }}</h1>
     <p class="page-subtitle">{{ 'dashboard.subtitle' | t }}</p>
   </div>
-  <button type="button" class="btn" (click)="load()">{{ 'common.refresh' | t }}</button>
+  <button type="button" class="btn" (click)="load()"><app-icon name="refresh" [size]="16" />{{ 'common.refresh' | t }}</button>
 </div>
 
 @if (error()) {
@@ -71,7 +71,7 @@
         </thead>
         <tbody>
           @for (h of s.latestHotels; track h.id) {
-            <tr>
+            <tr class="clickable" [routerLink]="['/hotels', h.id]">
               <td><a [routerLink]="['/hotels', h.id]">{{ h.name }}</a></td>
               <td>{{ h.city }}</td>
               <td>{{ h.country }}</td>
@@ -88,5 +88,5 @@
     </div>
   </section>
 } @else if (!error()) {
-  <p class="muted">{{ 'dashboard.loading' | t }}</p>
+  <div class="card"><app-skeleton-rows [rows]="6" [columns]="4" [label]="'dashboard.loading' | t" /></div>
 }

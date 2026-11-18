@@ -7,13 +7,15 @@ import { translate } from '../../../core/i18n/translate';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { RoomType, SaveRoomTypeRequest } from '../../../core/models/room-type';
 import { CatalogueService } from '../../../core/services/catalogue.service';
+import { Icon } from '../../../shared/icon';
+import { SkeletonRows } from '../../../shared/skeleton';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 
 // Admin screen for the shared room type catalogue (Single, Double, Suite...).
 // Same inline-editor pattern as the hotel rooms table, so every list in the app behaves alike.
 @Component({
   selector: 'app-room-types-page',
-  imports: [ReactiveFormsModule, NgTemplateOutlet, DecimalPipe, TranslatePipe],
+  imports: [ReactiveFormsModule, NgTemplateOutlet, DecimalPipe, TranslatePipe, Icon, SkeletonRows],
   templateUrl: './room-types-page.html',
 })
 export class RoomTypesPage implements OnInit {

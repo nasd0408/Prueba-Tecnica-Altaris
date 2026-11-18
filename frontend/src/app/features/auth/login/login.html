@@ -22,13 +22,30 @@
       <label for="password">{{ 'auth.login.password' | t }}</label>
       <a routerLink="/forgot-password" class="small-link">{{ 'auth.login.forgot' | t }}</a>
     </div>
-    <input id="password" type="password" formControlName="password" autocomplete="current-password" />
+    <!-- Show/hide toggle: avoids retyping the whole password after a typo. -->
+    <div class="password-field">
+      <input
+        id="password"
+        [type]="showPassword() ? 'text' : 'password'"
+        formControlName="password"
+        autocomplete="current-password"
+      />
+      <button
+        type="button"
+        class="reveal"
+        (click)="showPassword.set(!showPassword())"
+        [attr.aria-pressed]="showPassword()"
+      >
+        {{ (showPassword() ? 'auth.login.hidePassword' : 'auth.login.showPassword') | t }}
+      </button>
+    </div>
     @if (form.controls.password.invalid && form.controls.password.touched) {
       <span class="field-error">{{ 'auth.login.passwordRequired' | t }}</span>
     }
   </div>
 
   <button class="btn btn-primary btn-block" type="submit" [disabled]="submitting()">
+    @if (submitting()) { <span class="spinner" aria-hidden="true"></span> }
     {{ (submitting() ? 'auth.login.submitting' : 'auth.login.submit') | t }}
   </button>
 </form>

@@ -10,12 +10,15 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Hotel, HotelQuery } from '../../../core/models/hotel';
 import { PagedResult } from '../../../core/models/paged-result';
 import { HotelService } from '../../../core/services/hotel.service';
+import { EmptyState } from '../../../shared/empty-state';
+import { Icon } from '../../../shared/icon';
+import { SkeletonRows } from '../../../shared/skeleton';
 
 const DEFAULT_PAGE_SIZE = 25;
 
 @Component({
   selector: 'app-hotel-list',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, Icon, EmptyState, SkeletonRows],
   templateUrl: './hotel-list.html',
   styleUrl: './hotel-list.css',
 })

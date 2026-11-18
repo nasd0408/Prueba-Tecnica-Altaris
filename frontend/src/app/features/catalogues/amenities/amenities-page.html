@@ -4,7 +4,7 @@
     <p class="page-subtitle">{{ 'catalogues.amenities.subtitle' | t }}</p>
   </div>
   <button type="button" class="btn btn-primary" (click)="startCreate()" [disabled]="editing() === 'new'">
-    {{ 'catalogues.amenities.new' | t }}
+    <app-icon name="plus" [size]="16" />{{ 'catalogues.amenities.new' | t }}
   </button>
 </div>
 
@@ -63,7 +63,13 @@
           }
         } @empty {
           <tr>
-            <td colspan="3" class="muted">{{ (loading() ? 'common.loading' : 'catalogues.amenities.empty') | t }}</td>
+            <td colspan="3">
+              @if (loading()) {
+                <app-skeleton-rows [rows]="8" [columns]="2" />
+              } @else {
+                <p class="muted">{{ 'catalogues.amenities.empty' | t }}</p>
+              }
+            </td>
           </tr>
         }
       </tbody>

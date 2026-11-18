@@ -3,7 +3,7 @@
     <h1>{{ 'hotels.list.title' | t }}</h1>
     <p class="page-subtitle">{{ 'hotels.list.subtitle' | t }}</p>
   </div>
-  <a class="btn btn-primary" routerLink="/hotels/new">{{ 'hotels.list.new' | t }}</a>
+  <a class="btn btn-primary" routerLink="/hotels/new"><app-icon name="plus" [size]="16" />{{ 'hotels.list.new' | t }}</a>
 </div>
 
 @if (error()) {
@@ -16,7 +16,7 @@
   <div class="toolbar">
     <input
       type="search"
-      class="search"
+      class="search search-input"
       [placeholder]="'hotels.list.searchPlaceholder' | t"
       [formControl]="searchControl"
     />
@@ -44,7 +44,7 @@
 
   @if (result(); as r) {
     <div class="table-wrap">
-      <table [class.loading]="loading()">
+      <table [class.is-loading]="loading()">
         <thead>
           <tr>
             <th>{{ 'hotels.list.name' | t }}</th>
@@ -58,7 +58,8 @@
         </thead>
         <tbody>
           @for (hotel of r.items; track hotel.id) {
-            <tr>
+            <!-- The whole row opens the hotel (mouse); keyboard users reach it through the name link. -->
+            <tr class="clickable" [routerLink]="['/hotels', hotel.id]">
               <td class="name"><a [routerLink]="['/hotels', hotel.id]">{{ hotel.name }}</a></td>
               <td>{{ hotel.city }}</td>
               <td>{{ hotel.country }}</td>
@@ -72,12 +73,16 @@
                 }
               </td>
               <td class="actions">
-                <a [routerLink]="['/hotels', hotel.id, 'edit']">{{ 'common.edit' | t }}</a>
+                <a [routerLink]="['/hotels', hotel.id, 'edit']" (click)="$event.stopPropagation()">{{ 'common.edit' | t }}</a>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="empty muted">{{ 'hotels.list.empty' | t }}</td>
+              <td colspan="7">
+                <app-empty-state icon="search" [title]="'common.noResults' | t" [text]="'common.noResultsHint' | t">
+                  <button type="button" class="btn btn-sm" (click)="clearFilters()">{{ 'common.clearFilters' | t }}</button>
+                </app-empty-state>
+              </td>
             </tr>
           }
         </tbody>
@@ -108,6 +113,6 @@
       </button>
     </div>
   } @else if (loading()) {
-    <p class="empty muted">{{ 'hotels.list.loading' | t }}</p>
+    <app-skeleton-rows [rows]="8" [columns]="6" [label]="'hotels.list.loading' | t" />
   }
 </div>

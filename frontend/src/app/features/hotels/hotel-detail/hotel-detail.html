@@ -18,11 +18,11 @@
       <p class="page-subtitle">{{ h.city }}, {{ h.country }} &middot; <span class="stars">{{ stars(h.stars) }}</span></p>
     </div>
     <div class="header-actions">
-      <a class="btn" [routerLink]="['/hotels', h.id, 'edit']">{{ 'hotels.detail.editHotel' | t }}</a>
-      <a class="btn" routerLink="/reservations" [queryParams]="{ hotelId: h.id }">{{ 'hotels.detail.reservations' | t }}</a>
-      <a class="btn" [routerLink]="['/hotels', h.id, 'availability']">{{ 'hotels.detail.availability' | t }}</a>
+      <a class="btn" [routerLink]="['/hotels', h.id, 'edit']"><app-icon name="edit" [size]="16" />{{ 'hotels.detail.editHotel' | t }}</a>
+      <a class="btn" routerLink="/reservations" [queryParams]="{ hotelId: h.id }"><app-icon name="reservations" [size]="16" />{{ 'hotels.detail.reservations' | t }}</a>
+      <a class="btn" [routerLink]="['/hotels', h.id, 'availability']"><app-icon name="calendar" [size]="16" />{{ 'hotels.detail.availability' | t }}</a>
       @if (h.isActive) {
-        <a class="btn btn-primary" routerLink="/reservations/new" [queryParams]="{ hotelId: h.id }">{{ 'hotels.detail.newReservation' | t }}</a>
+        <a class="btn btn-primary" routerLink="/reservations/new" [queryParams]="{ hotelId: h.id }"><app-icon name="plus" [size]="16" />{{ 'hotels.detail.newReservation' | t }}</a>
       }
     </div>
   </div>
@@ -70,7 +70,7 @@
           [disabled]="editing() === 'new' || (editing() === null && !availableRoomTypes().length)"
           [title]="availableRoomTypes().length ? '' : ('hotels.detail.allOffered' | t)"
         >
-          {{ 'hotels.detail.addRoom' | t }}
+          <app-icon name="plus" [size]="15" />{{ 'hotels.detail.addRoom' | t }}
         </button>
       </div>
 
@@ -165,8 +165,14 @@
               }
             } @empty {
               <tr>
-                <td colspan="5" class="empty muted">
-                  {{ 'hotels.detail.empty' | t }}
+                <td colspan="5">
+                  <app-empty-state icon="bed" [title]="'hotels.detail.emptyTitle' | t" [text]="'hotels.detail.empty' | t">
+                    @if (availableRoomTypes().length && editing() !== 'new') {
+                      <button type="button" class="btn btn-sm btn-primary" (click)="startCreate()">
+                        <app-icon name="plus" [size]="15" />{{ 'hotels.detail.addRoom' | t }}
+                      </button>
+                    }
+                  </app-empty-state>
                 </td>
               </tr>
             }

@@ -1,41 +1,58 @@
 /*
   Global styles. Internal tool for an operations team: dense but readable, neutral colours,
   colour only where it carries meaning (status, alerts, primary action).
-  Design tokens as CSS variables so the palette can be changed in one place.
+  Design tokens as CSS variables so the palette, spacing and type scale change in one place.
 */
 
 :root {
-  --bg: #f2f4f7;
+  /* Surfaces and text */
+  --bg: #f3f5f8;
   --surface: #ffffff;
   --surface-alt: #f8f9fb;
-  --border: #d8dde3;
-  --border-strong: #c3cad3;
-  --text: #1d2733;
-  --text-muted: #5f6b7a;
+  --surface-hover: #f4f7fb;
+  --border: #dde2e8;
+  --border-strong: #c5ccd5;
+  --text: #1b2430;
+  --text-muted: #5e6b7a;
+  --text-subtle: #8692a0;
 
+  /* Brand / action */
   --primary: #0b5cad;
   --primary-hover: #094c8f;
   --primary-light: #4a90d9;
-  --primary-soft: #e6f0fa;
+  --primary-soft: #e7f0fa;
 
+  /* Semantic */
   --success: #2e7d32;
-  --success-soft: #e8f3e9;
-  --warning: #b26a00;
-  --warning-soft: #fff4e0;
+  --success-soft: #e7f4e8;
+  --warning: #a86300;
+  --warning-soft: #fff3df;
   --danger: #c62828;
+  --danger-hover: #a31f1f;
   --danger-soft: #fdecec;
 
-  --sidebar-bg: #1b2631;
-  --sidebar-text: #c2ccd6;
+  /* Layout */
+  --sidebar-bg: #18222d;
+  --sidebar-text: #b9c4cf;
   --sidebar-width: 232px;
+  --sidebar-collapsed: 60px;
   --topbar-height: 52px;
 
+  /* Shape and rhythm */
   --radius: 4px;
+  --radius-lg: 6px;
   --control-height: 34px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 4px 14px rgba(16, 24, 40, 0.1);
+  --focus-ring: 0 0 0 3px rgba(11, 92, 173, 0.25);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -45,11 +62,13 @@ body {
   line-height: 1.45;
   color: var(--text);
   background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1 {
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
@@ -61,6 +80,11 @@ h2 {
 
 a {
   color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 code {
@@ -72,13 +96,30 @@ code {
   border-radius: 3px;
 }
 
+/* Keyboard focus is always visible (WCAG); mouse clicks don't get the ring. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* ---------- Page structure ---------- */
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   margin-bottom: 20px;
 }
 
@@ -87,17 +128,36 @@ code {
   color: var(--text-muted);
 }
 
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -106,6 +166,42 @@ code {
 }
 
 .muted {
+  color: var(--text-muted);
+}
+
+/* KPI tiles, shared by dashboard, inventory and daily operations. */
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.kpi:hover {
+  text-decoration: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 1px var(--primary-light);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-note {
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -127,15 +223,18 @@ code {
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.12s, border-color 0.12s, color 0.12s;
 }
 
 .btn:hover:not(:disabled) {
   background: var(--surface-alt);
+  border-color: #b3bcc8;
+  text-decoration: none;
 }
 
 .btn:disabled {
-  opacity: 0.55;
-  cursor: default;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -146,6 +245,35 @@ code {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Secondary destructive action (outline): visible, but doesn't compete with the primary one. */
+.btn-danger {
+  border-color: #e4b0b0;
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* Destructive action confirmed in a dialog. */
+.btn-danger-solid {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+  background: var(--danger-hover);
+  border-color: var(--danger-hover);
+}
+
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
 }
 
 .btn-sm {
@@ -154,8 +282,46 @@ code {
   font-size: 13px;
 }
 
+.btn-icon {
+  width: var(--control-height);
+  padding: 0;
+}
+
+.btn-icon.btn-sm {
+  width: 28px;
+}
+
 .btn-block {
   width: 100%;
+}
+
+/* Small spinner inside a button while its action runs. */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.link-button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Forms ---------- */
@@ -170,6 +336,17 @@ textarea {
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+/* Native selects get a consistent arrow instead of each browser's own. */
+select {
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235e6b7a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
 }
 
 textarea {
@@ -178,7 +355,20 @@ textarea {
 }
 
 input[type='checkbox'] {
-  height: auto;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+input::placeholder {
+  color: var(--text-subtle);
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled) {
+  border-color: #aab4c0;
 }
 
 input:focus,
@@ -186,12 +376,31 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-soft);
+  box-shadow: var(--focus-ring);
+}
+
+input:disabled,
+select:disabled {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
 input.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched {
   border-color: var(--danger);
+}
+
+input.ng-invalid.ng-touched:focus {
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.18);
+}
+
+/* Search inputs with a magnifier on the left. */
+.search-input {
+  padding-left: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%238692a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
 }
 
 .field {
@@ -250,20 +459,39 @@ td {
 }
 
 th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-muted);
   background: var(--surface-alt);
+  white-space: nowrap;
+}
+
+tbody tr {
+  transition: background-color 0.1s;
 }
 
 tbody tr:hover {
-  background: #f5f8fc;
+  background: var(--surface-hover);
 }
 
 tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* Rows that open a detail page: the whole row is the target, not only the first link. */
+tr.clickable {
+  cursor: pointer;
+}
+
+tr.clickable:focus-visible {
+  border-radius: 0;
+  box-shadow: inset 3px 0 0 var(--primary);
+  background: var(--surface-hover);
 }
 
 td.num,
@@ -272,9 +500,17 @@ th.num {
   font-variant-numeric: tabular-nums;
 }
 
+td.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
 /* ---------- Feedback ---------- */
 
 .alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   padding: 10px 12px;
   margin-bottom: 16px;
   border: 1px solid;
@@ -294,11 +530,23 @@ th.num {
 }
 
 .badge {
-  display: inline-block;
-  padding: 1px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
   border-radius: 10px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Status dot: the colour reads at a glance, the text confirms it (not colour alone). */
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .badge-success {
@@ -311,6 +559,31 @@ th.num {
   color: var(--text-muted);
 }
 
+/* Loading placeholders. */
+.skeleton {
+  display: block;
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #e9edf2 25%, #f3f5f8 37%, #e9edf2 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* Faded content while a newer version loads (keeps the layout stable). */
+.is-loading {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
 /* ---------- Brand ---------- */
 
 .brand-mark {
@@ -319,6 +592,7 @@ th.num {
   justify-content: center;
   width: 26px;
   height: 26px;
+  flex-shrink: 0;
   border-radius: var(--radius);
   background: var(--primary);
   color: #fff;
@@ -342,7 +616,9 @@ th.num {
   padding: 28px 32px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-top: 3px solid var(--primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .auth-brand {
@@ -372,6 +648,36 @@ th.num {
   color: var(--text-muted);
 }
 
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.password-field input {
+  flex: 1;
+  padding-right: 72px;
+}
+
+.password-field .reveal {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  bottom: 4px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.password-field .reveal:hover {
+  background: var(--primary-soft);
+}
+
 .demo-hint {
   margin: 16px 0 0;
   padding-top: 14px;
@@ -393,10 +699,15 @@ th.num {
   padding: 14px 16px 2px;
   background: var(--surface-alt);
   border-bottom: 1px solid var(--border);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .editing-row td {
   padding: 0;
+}
+
+.editing-row:hover {
+  background: none;
 }
 
 .editing-row .editor {
@@ -425,16 +736,6 @@ th.num {
   padding-bottom: 12px;
 }
 
-.link-button {
-  border: 0;
-  padding: 0;
-  background: none;
-  color: var(--primary);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* ---------- Catalogue pages ---------- */
 
 .catalogue-grid {
@@ -460,4 +761,21 @@ th.num {
 
 .card.narrow {
   max-width: 640px;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 720px) {
+  .catalogue-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-editor-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inline-editor-row .editor-actions {
+    padding-top: 0;
+  }
 }

@@ -178,6 +178,7 @@
         class="btn btn-primary btn-block"
         [disabled]="saving() || quoting() || !quote()?.canBook"
       >
+        @if (saving()) { <span class="spinner" aria-hidden="true"></span> }
         {{ (saving() ? 'reservations.form.booking' : 'reservations.form.confirm') | t }}
       </button>
     </div>

@@ -4,9 +4,9 @@
     <p class="page-subtitle">{{ date() | date: 'fullDate' }} &middot; {{ 'daily.subtitle' | t }}</p>
   </div>
   <div class="date-nav">
-    <button type="button" class="btn btn-sm" (click)="shift(-1)">&lsaquo; {{ 'daily.previousDay' | t }}</button>
+    <button type="button" class="btn btn-sm btn-icon" (click)="shift(-1)" [attr.aria-label]="'daily.previousDay' | t" [title]="'daily.previousDay' | t"><app-icon name="chevronLeft" [size]="16" /></button>
     <input type="date" [value]="date()" (change)="setDate($any($event.target).value)" [attr.aria-label]="'daily.date' | t" />
-    <button type="button" class="btn btn-sm" (click)="shift(1)">{{ 'daily.nextDay' | t }} &rsaquo;</button>
+    <button type="button" class="btn btn-sm btn-icon" (click)="shift(1)" [attr.aria-label]="'daily.nextDay' | t" [title]="'daily.nextDay' | t"><app-icon name="chevronRight" [size]="16" /></button>
   </div>
 </div>
 
@@ -15,7 +15,7 @@
 }
 
 @if (summary(); as s) {
-  <div class="kpis" [class.loading]="loading()">
+  <div class="kpis" [class.is-loading]="loading()">
     <a class="card kpi" routerLink="/reservations" [queryParams]="arrivalsLink()">
       <span class="kpi-label">{{ 'daily.arrivals' | t }}</span>
       <span class="kpi-value">{{ s.arrivals | number }}</span>
@@ -57,7 +57,7 @@
     </div>
   </div>
 
-  <div class="grid" [class.loading]="loading()">
+  <div class="grid" [class.is-loading]="loading()">
     <section class="card">
       <div class="card-header">
         <h2>{{ 'daily.chartTitle' | t }}</h2>
@@ -108,5 +108,5 @@
     <a routerLink="/reservations/new">{{ 'daily.newReservation' | t }}</a>
   </p>
 } @else if (loading()) {
-  <p class="muted">{{ 'common.loading' | t }}</p>
+  <div class="card"><app-skeleton-rows [rows]="6" [columns]="5" [label]="'common.loading' | t" /></div>
 }

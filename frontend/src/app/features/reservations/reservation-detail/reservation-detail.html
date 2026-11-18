@@ -23,6 +23,7 @@
           [disabled]="busy()"
           (click)="run(a)"
         >
+          <app-icon [name]="a.icon" [size]="16" />
           {{ a.label | t }}
         </button>
       }

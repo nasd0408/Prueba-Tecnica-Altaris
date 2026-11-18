@@ -3,7 +3,7 @@
     <h1>{{ 'reservations.list.title' | t }}</h1>
     <p class="page-subtitle">{{ 'reservations.list.subtitle' | t }}</p>
   </div>
-  <a class="btn btn-primary" routerLink="/reservations/new">{{ 'reservations.list.new' | t }}</a>
+  <a class="btn btn-primary" routerLink="/reservations/new"><app-icon name="plus" [size]="16" />{{ 'reservations.list.new' | t }}</a>
 </div>
 
 @if (error()) {
@@ -12,7 +12,7 @@
 
 <div class="card">
   <div class="toolbar">
-    <input type="search" class="search" [placeholder]="'reservations.list.searchPlaceholder' | t" [formControl]="searchControl" />
+    <input type="search" class="search search-input" [placeholder]="'reservations.list.searchPlaceholder' | t" [formControl]="searchControl" />
 
     <select (change)="update({ status: $any($event.target).value || null })" [attr.aria-label]="'reservations.list.status' | t">
       <option value="">{{ 'reservations.list.allStatuses' | t }}</option>
@@ -50,7 +50,7 @@
 
   @if (result(); as r) {
     <div class="table-wrap">
-      <table [class.loading]="loading()">
+      <table [class.is-loading]="loading()">
         <thead>
           <tr>
             <th>{{ 'reservations.list.code' | t }}</th>
@@ -67,7 +67,8 @@
         </thead>
         <tbody>
           @for (res of r.items; track res.id) {
-            <tr>
+            <!-- Whole row opens the reservation (mouse); keyboard users use the code link. -->
+            <tr class="clickable" [routerLink]="['/reservations', res.id]">
               <td><a class="code" [routerLink]="['/reservations', res.id]">{{ res.code }}</a></td>
               <td>{{ res.guestName }}</td>
               <td>
@@ -84,7 +85,11 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="10" class="empty muted">{{ 'reservations.list.empty' | t }}</td>
+              <td colspan="10">
+                <app-empty-state icon="search" [title]="'common.noResults' | t" [text]="'common.noResultsHint' | t">
+                  <button type="button" class="btn btn-sm" (click)="clearFilters()">{{ 'common.clearFilters' | t }}</button>
+                </app-empty-state>
+              </td>
             </tr>
           }
         </tbody>
@@ -107,6 +112,6 @@
       <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.totalPages)">{{ 'common.last' | t }}</button>
     </div>
   } @else if (loading()) {
-    <p class="empty muted">{{ 'reservations.list.loading' | t }}</p>
+    <app-skeleton-rows [rows]="10" [columns]="8" [label]="'reservations.list.loading' | t" />
   }
 </div>

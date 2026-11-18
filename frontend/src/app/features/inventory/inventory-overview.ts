@@ -11,12 +11,14 @@ import { AvailabilityService } from '../../core/services/availability.service';
 import { HotelService } from '../../core/services/hotel.service';
 import { addDays, parseIsoDate, today } from '../../core/utils/dates';
 import { ChartView } from '../../shared/chart/chart';
+import { EmptyState } from '../../shared/empty-state';
+import { SkeletonRows } from '../../shared/skeleton';
 
 // Cross-hotel inventory: how full the whole portfolio is night by night, and which hotels are
 // about to run out. Filters live in the URL like in the hotel list (shareable, survive refresh).
 @Component({
   selector: 'app-inventory-overview',
-  imports: [ChartView, RouterLink, DecimalPipe, DatePipe, TranslatePipe],
+  imports: [ChartView, RouterLink, DecimalPipe, DatePipe, TranslatePipe, EmptyState, SkeletonRows],
   templateUrl: './inventory-overview.html',
   styleUrl: './inventory-overview.css',
 })

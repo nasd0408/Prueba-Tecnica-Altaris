@@ -13,7 +13,7 @@
       <p class="page-subtitle">{{ h.name }} &middot; {{ h.city }}, {{ h.country }}</p>
     </div>
     <button type="button" class="btn btn-primary" (click)="openForm()" [disabled]="!grid()?.rooms?.length">
-      {{ 'availability.load' | t }}
+      <app-icon name="plus" [size]="16" />{{ 'availability.load' | t }}
     </button>
   </div>
 
@@ -96,6 +96,7 @@
       <div class="form-actions">
         <button type="button" class="btn" (click)="formOpen.set(false)">{{ 'common.cancel' | t }}</button>
         <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) { <span class="spinner" aria-hidden="true"></span> }
           {{ (saving() ? 'common.saving' : 'availability.save') | t }}
         </button>
       </div>
@@ -104,9 +105,9 @@
 
   <div class="card">
     <div class="toolbar">
-      <button type="button" class="btn btn-sm" (click)="shift(-1)">&lsaquo; {{ 'availability.previousPeriod' | t }}</button>
+      <button type="button" class="btn btn-sm btn-icon" (click)="shift(-1)" [attr.aria-label]="'availability.previousPeriod' | t" [title]="'availability.previousPeriod' | t"><app-icon name="chevronLeft" [size]="16" /></button>
       <button type="button" class="btn btn-sm" (click)="goToday()">{{ 'common.today' | t }}</button>
-      <button type="button" class="btn btn-sm" (click)="shift(1)">{{ 'availability.nextPeriod' | t }} &rsaquo;</button>
+      <button type="button" class="btn btn-sm btn-icon" (click)="shift(1)" [attr.aria-label]="'availability.nextPeriod' | t" [title]="'availability.nextPeriod' | t"><app-icon name="chevronRight" [size]="16" /></button>
       <input type="date" [value]="from()" (change)="setFrom($any($event.target).value)" [attr.aria-label]="'availability.startDate' | t" />
       <select (change)="setRange($any($event.target).value)" [attr.aria-label]="'availability.numberOfDays' | t">
         @for (n of rangeOptions; track n) {
@@ -130,9 +131,9 @@
 
     @if (grid(); as g) {
       @if (g.rooms.length === 0) {
-        <p class="empty muted">
-          {{ 'availability.noRooms' | t }} <a [routerLink]="['/hotels', h.id]">{{ 'availability.addRooms' | t }}</a> {{ 'availability.beforeLoading' | t }}
-        </p>
+        <app-empty-state icon="bed" [title]="'availability.noRooms' | t">
+          <a class="btn btn-sm btn-primary" [routerLink]="['/hotels', h.id]">{{ 'availability.addRooms' | t }}</a>
+        </app-empty-state>
       } @else {
         <div class="grid-wrap" [class.loading]="loading()">
           <table class="avail">
@@ -192,7 +193,7 @@
         <p class="hint muted">{{ 'availability.hint' | t }}</p>
       }
     } @else if (loading()) {
-      <p class="empty muted">{{ 'availability.loading' | t }}</p>
+      <app-skeleton-rows [rows]="4" [columns]="8" [label]="'availability.loading' | t" />
     }
   </div>
 } @else if (!error()) {

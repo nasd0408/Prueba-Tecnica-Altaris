@@ -27,6 +27,7 @@ export class Login {
         : null;
 
   readonly submitting = signal(false);
+  readonly showPassword = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly form = inject(NonNullableFormBuilder).group({

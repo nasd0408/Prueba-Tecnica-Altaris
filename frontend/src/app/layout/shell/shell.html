@@ -1,34 +1,85 @@
-<aside class="sidebar">
+<a class="skip-link" href="#main-content">{{ 'nav.skipToContent' | t }}</a>
+
+<aside class="sidebar" [attr.aria-label]="'nav.overview' | t">
   <div class="sidebar-brand">
     <span class="brand-mark">A</span>
-    <span>Altairis <strong>Backoffice</strong></span>
+    <span class="brand-text">Altairis <strong>Backoffice</strong></span>
+    <button
+      type="button"
+      class="icon-button close-mobile"
+      (click)="mobileOpen.set(false)"
+      [attr.aria-label]="'common.dismiss' | t"
+    >
+      <app-icon name="close" />
+    </button>
   </div>
 
   <nav>
     @for (section of navigation; track section.title) {
       <div class="nav-section">{{ section.title | t }}</div>
       @for (item of section.items; track item.path) {
-        <a class="nav-item" [routerLink]="item.path" routerLinkActive="active">{{ item.label | t }}</a>
+        <a
+          class="nav-item"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [attr.title]="collapsed() ? (item.label | t) : null"
+        >
+          <app-icon [name]="item.icon" />
+          <span class="nav-label">{{ item.label | t }}</span>
+        </a>
       }
     }
   </nav>
 
-  <div class="sidebar-footer">{{ 'nav.version' | t }}</div>
+  <div class="sidebar-footer">
+    <button
+      type="button"
+      class="icon-button collapse-toggle"
+      (click)="toggleCollapsed()"
+      [attr.aria-pressed]="collapsed()"
+      [attr.aria-label]="'nav.collapse' | t"
+      [attr.title]="'nav.collapse' | t"
+    >
+      <app-icon name="collapse" />
+    </button>
+    <span class="version">{{ 'nav.version' | t }}</span>
+  </div>
 </aside>
+
+<!-- Dark layer behind the open sidebar on small screens; clicking it closes the menu. -->
+<div class="scrim" (click)="mobileOpen.set(false)" aria-hidden="true"></div>
 
 <div class="main">
   <header class="topbar">
-    <span class="env-tag">{{ 'nav.demoEnvironment' | t }}</span>
+    <button
+      type="button"
+      class="icon-button open-mobile"
+      (click)="mobileOpen.set(true)"
+      [attr.aria-label]="'nav.openMenu' | t"
+    >
+      <app-icon name="menu" />
+    </button>
+    <span class="env-tag"><span class="env-dot"></span>{{ 'nav.demoEnvironment' | t }}</span>
 
     <div class="user">
       <app-language-switch />
-      <span class="avatar">{{ initials() }}</span>
-      <span class="user-name">{{ auth.userName() }}</span>
-      <button type="button" class="btn btn-sm" (click)="auth.logout()">{{ 'nav.signOut' | t }}</button>
+      <span class="user-chip">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="user-name">{{ auth.userName() }}</span>
+      </span>
+      <button
+        type="button"
+        class="btn btn-sm btn-ghost"
+        (click)="auth.logout()"
+        [attr.title]="'nav.signOut' | t"
+      >
+        <app-icon name="logout" [size]="16" />
+        <span class="sign-out-label">{{ 'nav.signOut' | t }}</span>
+      </button>
     </div>
   </header>
 
-  <main class="content">
+  <main class="content" id="main-content" tabindex="-1">
     <router-outlet />
   </main>
 </div>

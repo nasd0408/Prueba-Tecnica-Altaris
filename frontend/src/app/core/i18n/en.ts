@@ -28,6 +28,10 @@ export const en = {
     nights: { one: '{count} night', other: '{count} nights' },
     dismiss: 'Dismiss',
     to: 'to',
+    goBack: 'Go back',
+    tryAgain: 'Try again',
+    noResults: 'No results',
+    noResultsHint: 'Try other filters or clear them to see everything.',
   },
 
   nav: {
@@ -44,6 +48,9 @@ export const en = {
     demoEnvironment: 'Demo environment',
     signOut: 'Sign out',
     version: 'v0.1 · demo',
+    collapse: 'Collapse or expand the menu',
+    openMenu: 'Open menu',
+    skipToContent: 'Skip to content',
   },
 
   titles: {
@@ -75,6 +82,8 @@ export const en = {
       password: 'Password',
       passwordRequired: 'Enter your password.',
       forgot: 'Forgot password?',
+      showPassword: 'Show',
+      hidePassword: 'Hide',
       submit: 'Sign in',
       submitting: 'Signing in...',
       noAccount: 'No account yet?',
@@ -216,6 +225,7 @@ export const en = {
       capacity: 'Capacity',
       basePriceColumn: 'Base price / night',
       empty: 'This hotel has no rooms on sale yet. Add one to start loading availability.',
+      emptyTitle: 'No rooms yet',
       notFound: 'Hotel not found.',
       backToHotels: 'Back to hotels',
       added: '{type} rooms added.',
@@ -442,8 +452,10 @@ export const en = {
         noShow: 'Mark as no-show',
         cancel: 'Cancel reservation',
       },
+      confirmNoShowTitle: 'Mark as no-show?',
       confirmNoShow: 'Mark this reservation as a no-show? The nights stay charged.',
-      confirmCancel: 'Cancel reservation {code}? The rooms go back on sale.',
+      confirmCancelTitle: 'Cancel reservation {code}?',
+      confirmCancel: 'The rooms go back on sale and this can’t be undone.',
       done: {
         checkIn: '{code}: guest checked in.',
         checkOut: '{code}: guest checked out.',

@@ -12,6 +12,8 @@ import { Amenity, RoomType } from '../../../core/models/room-type';
 import { CatalogueService } from '../../../core/services/catalogue.service';
 import { HotelService } from '../../../core/services/hotel.service';
 import { RoomService } from '../../../core/services/room.service';
+import { EmptyState } from '../../../shared/empty-state';
+import { Icon } from '../../../shared/icon';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 
 // Hotel "file": its data on the left, the rooms it sells on the right.
@@ -19,7 +21,7 @@ import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 // inside a hotel - the screen follows the data model.
 @Component({
   selector: 'app-hotel-detail',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgTemplateOutlet, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, NgTemplateOutlet, TranslatePipe, Icon, EmptyState],
   templateUrl: './hotel-detail.html',
   styleUrl: './hotel-detail.css',
 })

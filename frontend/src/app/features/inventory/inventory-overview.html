@@ -35,7 +35,7 @@
 }
 
 @if (overview(); as o) {
-  <div class="kpis" [class.loading]="loading()">
+  <div class="kpis" [class.is-loading]="loading()">
     <div class="card kpi">
       <span class="kpi-label">{{ 'inventory.roomNights' | t }}</span>
       <span class="kpi-value">{{ o.totalRoomNights | number }}</span>
@@ -56,7 +56,7 @@
     </div>
   </div>
 
-  <section class="card section" [class.loading]="loading()">
+  <section class="card section" [class.is-loading]="loading()">
     <div class="card-header"><h2>{{ 'inventory.chartTitle' | t }}</h2></div>
     <div class="card-body">
       @if (chart(); as config) {
@@ -65,7 +65,7 @@
     </div>
   </section>
 
-  <section class="card" [class.loading]="loading()">
+  <section class="card" [class.is-loading]="loading()">
     <div class="card-header">
       <h2>{{ 'inventory.tightTitle' | t }}</h2>
       <span class="muted">{{ 'inventory.tightNote' | t }}</span>
@@ -83,7 +83,7 @@
         </thead>
         <tbody>
           @for (h of o.tightestHotels; track h.hotelId) {
-            <tr>
+            <tr class="clickable" [routerLink]="['/hotels', h.hotelId, 'availability']">
               <td><a [routerLink]="['/hotels', h.hotelId, 'availability']">{{ h.name }}</a></td>
               <td>{{ h.city }}</td>
               <td>{{ h.country }}</td>
@@ -97,7 +97,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="muted">{{ 'inventory.empty' | t }}</td>
+              <td colspan="5"><app-empty-state icon="inventory" [title]="'inventory.empty' | t" /></td>
             </tr>
           }
         </tbody>
@@ -105,5 +105,5 @@
     </div>
   </section>
 } @else if (loading()) {
-  <p class="muted">{{ 'inventory.loading' | t }}</p>
+  <div class="card"><app-skeleton-rows [rows]="6" [columns]="5" [label]="'inventory.loading' | t" /></div>
 }
