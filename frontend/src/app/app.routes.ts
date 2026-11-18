@@ -4,12 +4,14 @@ import { authGuard, guestGuard } from './core/auth/auth.guards';
 import { AuthLayout } from './layout/auth-layout/auth-layout';
 import { Shell } from './layout/shell/shell';
 
-// Two layout routes with an empty path: the router tries the public (auth) group first and,
-// if no child matches, falls through to the private group. Each group has its own guard,
-// so individual pages never check authentication themselves.
+// Two layout routes with an empty path (public auth pages / private shell), each with its own
+// guard, so individual pages never check authentication themselves.
+// The root URL is redirected explicitly first: an empty-path layout route with children also
+// matches "/" with no child at all, so without this "/" would render the auth frame empty.
 // Pages are lazy-loaded: each one is its own JS chunk, so the first load stays small.
 // Titles are i18n keys, translated by TranslatedTitleStrategy.
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   {
     path: '',
     component: AuthLayout,
@@ -38,7 +40,6 @@ export const routes: Routes = [
     component: Shell,
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),

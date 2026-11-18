@@ -13,6 +13,14 @@ describe('App routing', () => {
     }).compileComponents();
   });
 
+  // Regression: "/" used to render the auth layout with no page inside when signed out.
+  it('sends the root URL to the login page when there is no session', async () => {
+    TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
+    expect(router.url).toBe('/login?returnUrl=%2Fdashboard');
+  });
+
   it('redirects to the login page when there is no session', async () => {
     TestBed.createComponent(App);
     const router = TestBed.inject(Router);
