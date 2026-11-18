@@ -1,0 +1,109 @@
+<div class="page-header">
+  <div>
+    <h1>{{ 'inventory.title' | t }}</h1>
+    <p class="page-subtitle">{{ 'inventory.subtitle' | t }}</p>
+  </div>
+</div>
+
+<div class="card filters">
+  <label>
+    {{ 'inventory.from' | t }}
+    <input type="date" [value]="from()" (change)="update({ from: $any($event.target).value })" />
+  </label>
+  <label>
+    {{ 'inventory.period' | t }}
+    <select (change)="update({ days: +$any($event.target).value })">
+      @for (n of rangeOptions; track n) {
+        <option [value]="n" [selected]="n === rangeDays()">{{ 'inventory.nextDays' | t: { count: n } }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    {{ 'inventory.country' | t }}
+    <select (change)="update({ country: $any($event.target).value })">
+      <option value="">{{ 'common.allCountries' | t }}</option>
+      @for (c of countries(); track c) {
+        <option [value]="c" [selected]="c === country()">{{ c }}</option>
+      }
+    </select>
+  </label>
+  <span class="muted range">{{ from() | date: 'd MMM' }} - {{ to() | date: 'd MMM y' }}</span>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+@if (overview(); as o) {
+  <div class="kpis" [class.loading]="loading()">
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'inventory.roomNights' | t }}</span>
+      <span class="kpi-value">{{ o.totalRoomNights | number }}</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'inventory.booked' | t }}</span>
+      <span class="kpi-value">{{ o.bookedRoomNights | number }}</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'inventory.occupancy' | t }}</span>
+      <span class="kpi-value">{{ occupancy() * 100 | number: '1.1-1' }}%</span>
+      <span class="meter"><span [style.width.%]="occupancy() * 100"></span></span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'inventory.soldOut' | t }}</span>
+      <span class="kpi-value">{{ o.soldOutRoomNights | number }}</span>
+      <span class="kpi-note">{{ 'inventory.soldOutNote' | t }}</span>
+    </div>
+  </div>
+
+  <section class="card section" [class.loading]="loading()">
+    <div class="card-header"><h2>{{ 'inventory.chartTitle' | t }}</h2></div>
+    <div class="card-body">
+      @if (chart(); as config) {
+        <app-chart [config]="config" [height]="300" />
+      }
+    </div>
+  </section>
+
+  <section class="card" [class.loading]="loading()">
+    <div class="card-header">
+      <h2>{{ 'inventory.tightTitle' | t }}</h2>
+      <span class="muted">{{ 'inventory.tightNote' | t }}</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'inventory.hotel' | t }}</th>
+            <th>{{ 'inventory.city' | t }}</th>
+            <th>{{ 'inventory.country' | t }}</th>
+            <th class="num">{{ 'inventory.freeNights' | t }}</th>
+            <th class="occ-col">{{ 'inventory.occupancy' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of o.tightestHotels; track h.hotelId) {
+            <tr>
+              <td><a [routerLink]="['/hotels', h.hotelId, 'availability']">{{ h.name }}</a></td>
+              <td>{{ h.city }}</td>
+              <td>{{ h.country }}</td>
+              <td class="num">{{ h.totalRoomNights - h.bookedRoomNights | number }}</td>
+              <td class="occ-col">
+                <span [class]="'occ-bar ' + level(h.occupancy)">
+                  <span [style.width.%]="h.occupancy * 100"></span>
+                </span>
+                <span class="occ-value">{{ h.occupancy * 100 | number: '1.0-0' }}%</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="muted">{{ 'inventory.empty' | t }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+} @else if (loading()) {
+  <p class="muted">{{ 'inventory.loading' | t }}</p>
+}

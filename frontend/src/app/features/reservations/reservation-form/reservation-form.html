@@ -1,0 +1,185 @@
+<div class="page-header">
+  <div>
+    <p class="breadcrumb"><a routerLink="/reservations">{{ 'reservations.list.title' | t }}</a> / {{ 'reservations.form.crumbNew' | t }}</p>
+    <h1>{{ 'reservations.form.title' | t }}</h1>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<form class="layout" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="steps">
+    <!-- Step 1 -->
+    <section class="card">
+      <div class="card-header"><h2><span class="step">1</span> {{ 'reservations.form.hotelStep' | t }}</h2></div>
+      <div class="card-body">
+        @if (hotel(); as h) {
+          <div class="selected-hotel">
+            <div>
+              <strong>{{ h.name }}</strong>
+              <span class="muted">{{ h.city }}, {{ h.country }}</span>
+            </div>
+            <button type="button" class="btn btn-sm" (click)="changeHotel()">{{ 'reservations.form.change' | t }}</button>
+          </div>
+        } @else {
+          <div class="field search-field">
+            <label for="hotel-search">{{ 'reservations.form.searchHotel' | t }}</label>
+            <input
+              id="hotel-search"
+              [formControl]="hotelSearch"
+              [placeholder]="'reservations.form.searchPlaceholder' | t"
+              autocomplete="off"
+            />
+            @if (hotelResults().length) {
+              <ul class="results" role="listbox">
+                @for (h of hotelResults(); track h.id) {
+                  <li>
+                    <button type="button" (click)="selectHotel(h)">
+                      <strong>{{ h.name }}</strong>
+                      <span class="muted">{{ h.city }}, {{ h.country }} &middot; {{ 'reservations.form.roomTypesCount' | t: { count: h.roomCount } }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card" [class.disabled]="!hotel()">
+      <div class="card-header"><h2><span class="step">2</span> {{ 'reservations.form.roomStep' | t }}</h2></div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="field">
+            <label for="room">{{ 'reservations.form.roomType' | t }}</label>
+            <select id="room" formControlName="roomId">
+              <option [ngValue]="0" disabled>{{ 'reservations.form.selectRoomType' | t }}</option>
+              @for (r of rooms(); track r.id) {
+                <option [ngValue]="r.id">
+                  {{ 'reservations.form.roomOption' | t: { name: r.roomTypeName, guests: ('common.guests' | t: { count: r.capacity }), price: (r.basePrice | currency: 'EUR' : 'symbol' : '1.0-0') } }}
+                </option>
+              }
+            </select>
+            @if (selectedRoom(); as r) {
+              @if (r.amenities.length) {
+                <span class="field-help">{{ r.amenities.map(a => a.name).join(', ') }}</span>
+              }
+            }
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="rooms">{{ 'reservations.form.rooms' | t }}</label>
+              <input id="rooms" type="number" min="1" max="20" formControlName="rooms" />
+            </div>
+            <div class="field">
+              <label for="guests">{{ 'reservations.form.guests' | t }}</label>
+              <input id="guests" type="number" min="1" max="100" formControlName="guests" />
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="check-in">{{ 'reservations.form.checkIn' | t }}</label>
+            <input id="check-in" type="date" [min]="minDate" formControlName="checkIn" (change)="onCheckInChange()" />
+          </div>
+          <div class="field">
+            <label for="check-out">{{ 'reservations.form.checkOut' | t }}</label>
+            <input id="check-out" type="date" [min]="form.controls.checkIn.value" formControlName="checkOut" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="card">
+      <div class="card-header"><h2><span class="step">3</span> {{ 'reservations.form.guestStep' | t }}</h2></div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="field">
+            <label for="guest-name">{{ 'reservations.form.fullName' | t }}</label>
+            <input id="guest-name" formControlName="guestName" autocomplete="off" />
+            @if (showError('guestName')) {
+              <span class="field-error">{{ 'reservations.form.nameError' | t }}</span>
+            }
+          </div>
+          <div class="field">
+            <label for="guest-email">{{ 'reservations.form.email' | t }}</label>
+            <input id="guest-email" type="email" formControlName="guestEmail" autocomplete="off" />
+            @if (showError('guestEmail')) {
+              <span class="field-error">{{ 'reservations.form.emailError' | t }}</span>
+            }
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="guest-phone">{{ 'reservations.form.phone' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
+            <input id="guest-phone" formControlName="guestPhone" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="notes">{{ 'reservations.form.notes' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
+            <input id="notes" formControlName="notes" [placeholder]="'reservations.form.notesPlaceholder' | t" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Quote: sticky summary on the right, always visible while filling the form -->
+  <aside class="card summary">
+    <div class="card-header"><h2>{{ 'reservations.form.summary' | t }}</h2></div>
+    <div class="card-body">
+      @if (quoteError()) {
+        <div class="alert alert-error">{{ quoteError() }}</div>
+      }
+      @if (quote(); as q) {
+        <p class="summary-title">
+          <strong>{{ q.roomTypeName }}</strong> &times; {{ q.rooms }}<br />
+          <span class="muted">{{ 'common.nights' | t: { count: q.nights } }} &middot; {{ 'reservations.form.maxGuests' | t: { count: q.maxGuests } }}</span>
+        </p>
+        <table class="nights" [class.loading]="quoting()">
+          <thead>
+            <tr>
+              <th>{{ 'reservations.form.night' | t }}</th>
+              <th class="num">{{ 'reservations.form.free' | t }}</th>
+              <th class="num">{{ 'reservations.form.price' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (n of q.nightsDetail; track n.date) {
+              <tr [class.blocked]="n.available === null || n.available < q.rooms">
+                <td>{{ n.date | date: 'EEE dd/MM' }}</td>
+                <td class="num">{{ n.available ?? '-' }}</td>
+                <td class="num">{{ n.price | currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="total">
+          <span>{{ 'reservations.form.total' | t }}</span>
+          <strong>{{ q.totalPrice | currency }}</strong>
+        </div>
+        @if (q.canBook) {
+          <p class="ok">{{ 'reservations.form.available' | t }}</p>
+        } @else {
+          <div class="alert alert-error">{{ problemText(q) }}</div>
+        }
+      } @else if (quoting()) {
+        <p class="muted">{{ 'reservations.form.checking' | t }}</p>
+      } @else {
+        <p class="muted">{{ 'reservations.form.selectPrompt' | t }}</p>
+      }
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="saving() || quoting() || !quote()?.canBook"
+      >
+        {{ (saving() ? 'reservations.form.booking' : 'reservations.form.confirm') | t }}
+      </button>
+    </div>
+  </aside>
+</form>

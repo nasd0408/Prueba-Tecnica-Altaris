@@ -1,0 +1,112 @@
+<div class="page-header">
+  <div>
+    <h1>{{ 'reservations.list.title' | t }}</h1>
+    <p class="page-subtitle">{{ 'reservations.list.subtitle' | t }}</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/reservations/new">{{ 'reservations.list.new' | t }}</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<div class="card">
+  <div class="toolbar">
+    <input type="search" class="search" [placeholder]="'reservations.list.searchPlaceholder' | t" [formControl]="searchControl" />
+
+    <select (change)="update({ status: $any($event.target).value || null })" [attr.aria-label]="'reservations.list.status' | t">
+      <option value="">{{ 'reservations.list.allStatuses' | t }}</option>
+      @for (s of statuses; track s) {
+        <option [value]="s" [selected]="s === query().status">{{ 'status.' + s | t }}</option>
+      }
+    </select>
+
+    <select (change)="update({ dateType: $any($event.target).value || null })" [attr.aria-label]="'reservations.list.dateFilter' | t">
+      <option value="">{{ 'reservations.list.anyDate' | t }}</option>
+      @for (d of dateTypes; track d) {
+        <option [value]="d" [selected]="d === query().dateType">{{ 'reservations.list.dateTypes.' + d | t }}</option>
+      }
+    </select>
+
+    @if (query().dateType) {
+      <input type="date" [value]="query().from ?? ''" (change)="update({ from: $any($event.target).value || null })" [attr.aria-label]="'reservations.list.from' | t" />
+      <span class="muted">{{ 'common.to' | t }}</span>
+      <input type="date" [value]="query().to ?? ''" (change)="update({ to: $any($event.target).value || null })" [attr.aria-label]="'reservations.list.to' | t" />
+    }
+
+    @if (query().hotelId) {
+      <span class="chip">
+        {{ 'reservations.list.hotelChip' | t: { id: query().hotelId } }}
+        <button type="button" (click)="update({ hotelId: null })" [attr.aria-label]="'reservations.list.removeHotel' | t">&times;</button>
+      </span>
+    }
+
+    <button type="button" class="btn btn-sm" (click)="clearFilters()">{{ 'common.clear' | t }}</button>
+
+    @if (result(); as r) {
+      <span class="result-count muted">{{ 'reservations.list.count' | t: { count: r.totalCount } }}</span>
+    }
+  </div>
+
+  @if (result(); as r) {
+    <div class="table-wrap">
+      <table [class.loading]="loading()">
+        <thead>
+          <tr>
+            <th>{{ 'reservations.list.code' | t }}</th>
+            <th>{{ 'reservations.list.guest' | t }}</th>
+            <th>{{ 'reservations.list.hotel' | t }}</th>
+            <th>{{ 'reservations.list.room' | t }}</th>
+            <th>{{ 'reservations.list.arrival' | t }}</th>
+            <th>{{ 'reservations.list.departure' | t }}</th>
+            <th class="num">{{ 'reservations.list.nights' | t }}</th>
+            <th class="num">{{ 'reservations.list.rooms' | t }}</th>
+            <th class="num">{{ 'reservations.list.total' | t }}</th>
+            <th>{{ 'reservations.list.status' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (res of r.items; track res.id) {
+            <tr>
+              <td><a class="code" [routerLink]="['/reservations', res.id]">{{ res.code }}</a></td>
+              <td>{{ res.guestName }}</td>
+              <td>
+                {{ res.hotelName }}
+                <span class="muted sub">{{ res.city }}</span>
+              </td>
+              <td>{{ res.roomTypeName }}</td>
+              <td class="nowrap">{{ res.checkIn | date: 'dd/MM/yyyy' }}</td>
+              <td class="nowrap">{{ res.checkOut | date: 'dd/MM/yyyy' }}</td>
+              <td class="num">{{ res.nights }}</td>
+              <td class="num">{{ res.rooms }}</td>
+              <td class="num">{{ res.totalPrice | currency }}</td>
+              <td><app-status-badge [status]="res.status" /></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="10" class="empty muted">{{ 'reservations.list.empty' | t }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <label class="page-size">
+        {{ 'common.rowsPerPage' | t }}
+        <select (change)="update({ pageSize: $any($event.target).value })">
+          @for (size of pageSizes; track size) {
+            <option [value]="size" [selected]="size === query().pageSize">{{ size }}</option>
+          }
+        </select>
+      </label>
+      <span class="page-info">{{ 'common.pageOf' | t: { page: r.page, total: r.totalPages || 1 } }}</span>
+      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(1)">{{ 'common.first' | t }}</button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(r.page - 1)">{{ 'common.previous' | t }}</button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.page + 1)">{{ 'common.next' | t }}</button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.totalPages)">{{ 'common.last' | t }}</button>
+    </div>
+  } @else if (loading()) {
+    <p class="empty muted">{{ 'reservations.list.loading' | t }}</p>
+  }
+</div>

@@ -51,7 +51,10 @@ public class HotelsController(AppDbContext db) : ControllerBase
             .ThenBy(h => h.Id) // tie-breaker so paging is stable
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(h => ToDto(h))
+            // Projection in SQL: Rooms.Count becomes a COUNT subquery per row (25 rows per page),
+            // and only the listed columns are read instead of whole entities.
+            .Select(h => new HotelDto(h.Id, h.Name, h.City, h.Country, h.Address, h.Stars,
+                h.Email, h.Phone, h.IsActive, h.CreatedAt, h.Rooms.Count))
             .ToListAsync(ct);
 
         return new PagedResult<HotelDto>(items, page, pageSize, total);
@@ -65,8 +68,13 @@ public class HotelsController(AppDbContext db) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<HotelDto>> GetHotel(int id, CancellationToken ct)
     {
-        var hotel = await db.Hotels.AsNoTracking().FirstOrDefaultAsync(h => h.Id == id, ct);
-        return hotel is null ? NotFound() : ToDto(hotel);
+        var hotel = await db.Hotels
+            .AsNoTracking()
+            .Where(h => h.Id == id)
+            .Select(h => new HotelDto(h.Id, h.Name, h.City, h.Country, h.Address, h.Stars,
+                h.Email, h.Phone, h.IsActive, h.CreatedAt, h.Rooms.Count))
+            .FirstOrDefaultAsync(ct);
+        return hotel is null ? NotFound() : hotel;
     }
 
     [HttpPost]
@@ -79,7 +87,7 @@ public class HotelsController(AppDbContext db) : ControllerBase
         await db.SaveChangesAsync(ct);
 
         // 201 + Location header pointing to the new resource (REST convention).
-        return CreatedAtAction(nameof(GetHotel), new { id = hotel.Id }, ToDto(hotel));
+        return CreatedAtAction(nameof(GetHotel), new { id = hotel.Id }, ToDto(hotel, roomCount: 0));
     }
 
     [HttpPut("{id:int}")]
@@ -91,7 +99,7 @@ public class HotelsController(AppDbContext db) : ControllerBase
 
         Apply(request, hotel);
         await db.SaveChangesAsync(ct);
-        return ToDto(hotel);
+        return ToDto(hotel, await db.Rooms.CountAsync(r => r.HotelId == id, ct));
     }
 
     // Manual mapping instead of AutoMapper: a handful of fields, explicit and easy to debug.
@@ -107,6 +115,6 @@ public class HotelsController(AppDbContext db) : ControllerBase
         h.IsActive = r.IsActive;
     }
 
-    private static HotelDto ToDto(Hotel h) =>
-        new(h.Id, h.Name, h.City, h.Country, h.Address, h.Stars, h.Email, h.Phone, h.IsActive, h.CreatedAt);
+    private static HotelDto ToDto(Hotel h, int roomCount) =>
+        new(h.Id, h.Name, h.City, h.Country, h.Address, h.Stars, h.Email, h.Phone, h.IsActive, h.CreatedAt, roomCount);
 }

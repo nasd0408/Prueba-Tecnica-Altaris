@@ -6,6 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap
 
 import { fromAbortable } from '../../../core/http/abortable';
 import { describeApiError } from '../../../core/http/api-error';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Hotel, HotelQuery } from '../../../core/models/hotel';
 import { PagedResult } from '../../../core/models/paged-result';
 import { HotelService } from '../../../core/services/hotel.service';
@@ -14,7 +15,7 @@ const DEFAULT_PAGE_SIZE = 25;
 
 @Component({
   selector: 'app-hotel-list',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './hotel-list.html',
   styleUrl: './hotel-list.css',
 })
@@ -56,7 +57,7 @@ export class HotelList {
         switchMap((q) =>
           fromAbortable((signal) => this.hotelService.getHotels(q, signal)).pipe(
             catchError((err) => {
-              this.error.set(describeApiError(err, 'Could not load hotels.'));
+              this.error.set(describeApiError(err, 'hotels.list.failed'));
               return of(null);
             }),
           ),

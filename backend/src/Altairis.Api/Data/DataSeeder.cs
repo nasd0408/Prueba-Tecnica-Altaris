@@ -105,4 +105,117 @@ public static class DataSeeder
         await db.SaveChangesAsync(ct);
         db.ChangeTracker.AutoDetectChangesEnabled = true;
     }
+
+    // Catalogue: (name, capacity, description, reference price for a 1-star hotel).
+    // The price isn't stored in the catalogue (each hotel sets its own); it's only used to seed rooms.
+    private static readonly (string Name, int Capacity, string Description, decimal Price)[] RoomTypeCatalogue =
+    [
+        ("Single", 1, "One single bed.", 35m),
+        ("Double", 2, "One double bed.", 50m),
+        ("Twin", 2, "Two single beds.", 50m),
+        ("Triple", 3, "Three single beds or one double plus one single.", 65m),
+        ("Family", 4, "Two double beds or a double plus bunk beds.", 80m),
+        ("Junior Suite", 2, "Double bed and separate sitting area.", 95m),
+        ("Suite", 3, "Bedroom plus separate living room.", 140m),
+        ("Luxury Suite", 4, "Large suite with premium finishes and services.", 220m),
+    ];
+
+    private static readonly string[] AmenityCatalogue =
+    [
+        "Wi-Fi", "TV", "Air conditioning", "Minibar", "Safe", "Balcony", "Sea view", "Pool access",
+        "Pet friendly", "Bunk beds", "Bathtub", "Kitchenette", "Accessible", "Coffee machine",
+    ];
+
+    // Catalogues get their own "is it empty?" check: they're reference data the app needs
+    // even in an otherwise empty database.
+    public static async Task SeedCataloguesAsync(AppDbContext db, CancellationToken ct = default)
+    {
+        if (!await db.RoomTypes.AnyAsync(ct))
+        {
+            db.RoomTypes.AddRange(RoomTypeCatalogue.Select(t =>
+                new RoomType { Name = t.Name, Capacity = t.Capacity, Description = t.Description }));
+        }
+
+        if (!await db.Amenities.AnyAsync(ct))
+        {
+            db.Amenities.AddRange(AmenityCatalogue.Select(name => new Amenity { Name = name }));
+        }
+
+        await db.SaveChangesAsync(ct);
+    }
+
+    // Rooms for the demo hotels: 2-5 room types each, priced by hotel category,
+    // with amenities that make sense for the type and category.
+    public static async Task SeedRoomsAsync(AppDbContext db, CancellationToken ct = default)
+    {
+        if (await db.Rooms.AnyAsync(ct))
+            return;
+
+        // Only the two columns needed, not full entities: 10k small rows.
+        var hotels = await db.Hotels.AsNoTracking().Select(h => new { h.Id, h.Stars }).ToListAsync(ct);
+        var roomTypes = await db.RoomTypes.AsNoTracking().ToDictionaryAsync(t => t.Name, ct);
+        // Tracked on purpose: assigning these instances to Room.Amenities makes EF insert
+        // only the link rows (RoomAmenities), not new amenities.
+        var amenities = await db.Amenities.ToDictionaryAsync(a => a.Name, ct);
+
+        var random = new Random(2025);
+        var rooms = new List<Room>(hotels.Count * 4);
+
+        foreach (var hotel in hotels)
+        {
+            // Suites from 4 stars, Luxury Suite only in 5-star hotels. Every hotel sells a Double.
+            var offered = RoomTypeCatalogue
+                .Where(t => t.Name != "Double")
+                .Where(t => t.Name switch
+                {
+                    "Junior Suite" or "Suite" => hotel.Stars >= 4,
+                    "Luxury Suite" => hotel.Stars == 5,
+                    _ => true,
+                })
+                .OrderBy(_ => random.Next())
+                .Take(random.Next(1, 5))
+                .Prepend(RoomTypeCatalogue[1]);
+
+            // More stars, higher price: +35% per star over the 1-star reference, whole euros.
+            var priceFactor = 1 + (hotel.Stars - 1) * 0.35m;
+
+            foreach (var type in offered)
+            {
+                rooms.Add(new Room
+                {
+                    HotelId = hotel.Id,
+                    RoomTypeId = roomTypes[type.Name].Id,
+                    BasePrice = Math.Round(type.Price * priceFactor),
+                    Amenities = PickAmenities(type.Name, hotel.Stars, random).Select(n => amenities[n]).ToList(),
+                    CreatedAt = DateTime.UtcNow,
+                });
+            }
+        }
+
+        db.ChangeTracker.AutoDetectChangesEnabled = false;
+        db.Rooms.AddRange(rooms);
+        await db.SaveChangesAsync(ct);
+        db.ChangeTracker.AutoDetectChangesEnabled = true;
+    }
+
+    private static IEnumerable<string> PickAmenities(string roomType, int stars, Random random)
+    {
+        bool Chance(int percent) => random.Next(100) < percent;
+        var isSuite = roomType.Contains("Suite");
+
+        if (Chance(95)) yield return "Wi-Fi";
+        if (Chance(90)) yield return "TV";
+        if (stars >= 3 || Chance(40)) yield return "Air conditioning";
+        if (stars >= 4 || isSuite) yield return "Minibar";
+        if (stars >= 3 && Chance(70)) yield return "Safe";
+        if (isSuite || Chance(25)) yield return "Balcony";
+        if (Chance(15)) yield return "Sea view";
+        if (stars >= 3 && Chance(30)) yield return "Pool access";
+        if (Chance(15)) yield return "Pet friendly";
+        if (roomType is "Family" or "Triple" && Chance(50)) yield return "Bunk beds";
+        if (isSuite) yield return "Bathtub";
+        if (roomType == "Family" && Chance(30)) yield return "Kitchenette";
+        if (Chance(10)) yield return "Accessible";
+        if (stars >= 4 && Chance(50)) yield return "Coffee machine";
+    }
 }

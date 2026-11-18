@@ -22,6 +22,7 @@ public class DashboardController(AppDbContext db) : ControllerBase
         var active = await hotels.CountAsync(h => h.IsActive, ct);
         var countries = await hotels.Select(h => h.Country).Distinct().CountAsync(ct);
         var cities = await hotels.Select(h => new { h.Country, h.City }).Distinct().CountAsync(ct);
+        var rooms = await db.Rooms.CountAsync(ct);
 
         // Sort/filter on an anonymous type and build the DTO at the end: EF can translate
         // OrderBy over anonymous members, but not over properties of a record created in Select.
@@ -47,9 +48,9 @@ public class DashboardController(AppDbContext db) : ControllerBase
             .OrderByDescending(h => h.CreatedAt)
             .Take(5)
             .Select(h => new HotelDto(h.Id, h.Name, h.City, h.Country, h.Address, h.Stars,
-                h.Email, h.Phone, h.IsActive, h.CreatedAt))
+                h.Email, h.Phone, h.IsActive, h.CreatedAt, h.Rooms.Count))
             .ToListAsync(ct);
 
-        return new DashboardSummary(total, active, countries, cities, byCountry, byStars, latest);
+        return new DashboardSummary(total, active, countries, cities, rooms, byCountry, byStars, latest);
     }
 }

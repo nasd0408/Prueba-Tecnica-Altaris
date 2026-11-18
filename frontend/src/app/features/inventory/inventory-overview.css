@@ -1,0 +1,117 @@
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.range {
+  margin-left: auto;
+  padding-bottom: 8px;
+}
+
+.loading {
+  opacity: 0.55;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-note {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meter {
+  height: 6px;
+  background: #e6eaef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.occ-col {
+  width: 220px;
+}
+
+td.occ-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Small horizontal bar: easier to compare between rows than the % numbers alone. */
+.occ-bar {
+  flex: 1;
+  height: 8px;
+  background: #e6eaef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.occ-bar span {
+  display: block;
+  height: 100%;
+}
+
+/* Same colour scale as the hotel availability grid, a bit stronger for a thin bar. */
+.occ-bar.low span { background: #7fb07f; }
+.occ-bar.mid span { background: #e0b84a; }
+.occ-bar.high span { background: #e08a2e; }
+.occ-bar.full span { background: #c94a43; }
+
+.occ-value {
+  width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1100px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

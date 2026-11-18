@@ -4,6 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { describeApiError } from '../../../core/http/api-error';
+import { translate } from '../../../core/i18n/translate';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 import { fieldsMatch } from '../../../shared/validators';
 
@@ -12,7 +14,7 @@ import { fieldsMatch } from '../../../shared/validators';
 // and the API endpoint will require the code.
 @Component({
   selector: 'app-forgot-password',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './forgot-password.html',
 })
 export class ForgotPassword {
@@ -32,10 +34,7 @@ export class ForgotPassword {
   );
 
   constructor() {
-    inject(SnackbarService).show(
-      'MFA is not implemented yet: passwords are reset without identity verification.',
-      'warning',
-    );
+    inject(SnackbarService).show(translate('auth.forgot.mfaWarning'), 'warning');
   }
 
   async submit(): Promise<void> {
@@ -52,7 +51,7 @@ export class ForgotPassword {
       await this.auth.resetPassword(userName.trim(), newPassword);
       await this.router.navigate(['/login'], { queryParams: { reset: 1 } });
     } catch (err) {
-      this.error.set(describeApiError(err, 'The password could not be reset.'));
+      this.error.set(describeApiError(err, 'auth.forgot.failed'));
     } finally {
       this.submitting.set(false);
     }

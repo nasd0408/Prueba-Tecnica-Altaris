@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div>
+    <h1>{{ 'catalogues.roomTypes.title' | t }}</h1>
+    <p class="page-subtitle">
+      {{ 'catalogues.roomTypes.subtitle' | t }}
+    </p>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="startCreate()" [disabled]="editing() === 'new'">
+    {{ 'catalogues.roomTypes.new' | t }}
+  </button>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<ng-template #editor>
+  <form class="editor" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    @if (formError()) {
+      <div class="alert alert-error">{{ formError() }}</div>
+    }
+    <div class="catalogue-grid">
+      <div class="field">
+        <label for="rt-name">{{ 'catalogues.roomTypes.name' | t }}</label>
+        <input id="rt-name" formControlName="name" [placeholder]="'catalogues.roomTypes.namePlaceholder' | t" />
+        @if (showError('name')) {
+          <span class="field-error">{{ 'catalogues.roomTypes.nameError' | t }}</span>
+        }
+      </div>
+      <div class="field">
+        <label for="rt-capacity">{{ 'catalogues.roomTypes.capacity' | t }}</label>
+        <input id="rt-capacity" type="number" min="1" max="20" formControlName="capacity" />
+        @if (showError('capacity')) {
+          <span class="field-error">{{ 'catalogues.roomTypes.capacityError' | t }}</span>
+        }
+      </div>
+    </div>
+    <div class="field">
+      <label for="rt-description">{{ 'catalogues.roomTypes.description' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
+      <input id="rt-description" formControlName="description" [placeholder]="'catalogues.roomTypes.descriptionPlaceholder' | t" />
+    </div>
+    @if (editingRoomCount() > 0) {
+      <!-- Make the impact visible: this catalogue is shared by every hotel. -->
+      <p class="field-help">{{ 'catalogues.roomTypes.impact' | t: { count: editingRoomCount() } }}</p>
+    }
+    <div class="editor-actions">
+      <button type="button" class="btn btn-sm" (click)="cancelEdit()">{{ 'common.cancel' | t }}</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+        {{ (saving() ? 'common.saving' : 'common.save') | t }}
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<div class="card">
+  @if (editing() === 'new') {
+    <ng-container [ngTemplateOutlet]="editor" />
+  }
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ 'catalogues.roomTypes.name' | t }}</th>
+          <th>{{ 'catalogues.roomTypes.description' | t }}</th>
+          <th class="num">{{ 'catalogues.roomTypes.columnCapacity' | t }}</th>
+          <th class="num">{{ 'catalogues.roomTypes.columnHotels' | t }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of roomTypes(); track t.id) {
+          @if (isEditing(t)) {
+            <tr class="editing-row">
+              <td colspan="5"><ng-container [ngTemplateOutlet]="editor" /></td>
+            </tr>
+          } @else {
+            <tr>
+              <td><strong>{{ t.name }}</strong></td>
+              <td class="muted">{{ t.description || '-' }}</td>
+              <td class="num">{{ t.capacity }}</td>
+              <td class="num">{{ t.roomCount | number }}</td>
+              <td class="num"><button type="button" class="link-button" (click)="startEdit(t)">{{ 'common.edit' | t }}</button></td>
+            </tr>
+          }
+        } @empty {
+          <tr>
+            <td colspan="5" class="muted">{{ (loading() ? 'common.loading' : 'catalogues.roomTypes.empty') | t }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

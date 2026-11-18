@@ -1,0 +1,149 @@
+.breadcrumb {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+}
+
+.card.disabled {
+  opacity: 0.6;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ---------- Hotel search ---------- */
+
+.search-field {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 2px 0 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.results button {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 6px 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.results button:hover {
+  background: var(--primary-soft);
+}
+
+.results .muted {
+  font-size: 12px;
+}
+
+.selected-hotel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-hotel .muted {
+  display: block;
+  font-size: 13px;
+}
+
+/* ---------- Summary ---------- */
+
+.summary {
+  position: sticky;
+  top: 16px;
+}
+
+.summary-title {
+  margin: 0 0 10px;
+}
+
+.nights {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.nights th,
+.nights td {
+  padding: 4px 6px;
+}
+
+.nights.loading {
+  opacity: 0.5;
+}
+
+.nights tr.blocked td {
+  background: var(--danger-soft);
+  color: #8e1c1c;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 2px solid var(--border);
+  font-size: 16px;
+}
+
+.ok {
+  margin: 0 0 12px;
+  color: var(--success);
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    position: static;
+  }
+}

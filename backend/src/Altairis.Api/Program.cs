@@ -1,12 +1,31 @@
+using System.Text.Json.Serialization;
 using Altairis.Api.Auth;
 using Altairis.Api.Data;
+using Altairis.Api.Errors;
+using Altairis.Api.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    // Enums as text in JSON ("Confirmed" instead of 2): self-explanatory for the frontend and anyone
+    // reading the API. Numbers are still accepted on input (e.g. DayOfWeek from the inventory form).
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    // DataAnnotations errors keep the standard ValidationProblemDetails shape ("errors" per field)
+    // and also get the same "code" + "args" as business errors, so the frontend reads every error the same way.
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = context =>
+    {
+        var problem = new ValidationProblemDetails(context.ModelState) { Status = StatusCodes.Status400BadRequest };
+        var error = ApiErrors.ValidationFailed(context.ModelState.Where(e => e.Value?.Errors.Count > 0).Select(e => e.Key));
+        problem.Extensions["code"] = error.Code;
+        problem.Extensions["args"] = error.Args;
+        return new BadRequestObjectResult(problem);
+    });
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -35,7 +54,20 @@ builder.Services
     })
     .AddEntityFrameworkStores<AppDbContext>();
 
+// The bearer tokens are encrypted with Data Protection keys. By default those keys live in the
+// container's file system, so every restart/redeploy generated new keys and logged everybody out.
+// Storing them in the database keeps sessions alive across restarts and lets several API
+// instances read each other's tokens.
+builder.Services.AddDataProtection()
+    .SetApplicationName("Altairis.Backoffice")
+    .PersistKeysToDbContext<AppDbContext>();
+
 builder.Services.AddAuthRateLimiting();
+
+// TimeProvider instead of DateTime.UtcNow inside services: tests can fake "today"
+// (booking rules depend on the date). Scoped service: it uses the request's DbContext.
+builder.Services.TryAddSingleton(TimeProvider.System);
+builder.Services.AddScoped<ReservationService>();
 
 // The API only receives traffic through nginx, so the TCP connection always comes from nginx.
 // This reads the real client IP from X-Forwarded-For (needed for per-IP rate limiting).
@@ -61,6 +93,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DataSeeder.SeedAsync(db);
+    await DataSeeder.SeedCataloguesAsync(db);
+    await DataSeeder.SeedRoomsAsync(db);
+    await InventorySeeder.SeedAsync(db);
+    await ReservationSeeder.SeedAsync(db);
     await DataSeeder.SeedDemoUserAsync(scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>());
 }
 

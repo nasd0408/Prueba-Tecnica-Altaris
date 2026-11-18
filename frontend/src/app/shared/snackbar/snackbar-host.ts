@@ -1,16 +1,18 @@
 import { Component, inject } from '@angular/core';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { SnackbarService } from './snackbar.service';
 
 // Rendered once in the root component, so messages survive navigation between pages.
 @Component({
   selector: 'app-snackbar-host',
+  imports: [TranslatePipe],
   template: `
     <div class="snackbar-stack" aria-live="polite">
       @for (m of snackbar.messages(); track m.id) {
         <div [class]="'snackbar snackbar-' + m.kind" role="status">
           <span>{{ m.text }}</span>
-          <button type="button" class="snackbar-close" (click)="snackbar.dismiss(m.id)" aria-label="Dismiss">
+          <button type="button" class="snackbar-close" (click)="snackbar.dismiss(m.id)" [attr.aria-label]="'common.dismiss' | t">
             &times;
           </button>
         </div>

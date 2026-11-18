@@ -1,8 +1,13 @@
 <div class="page-header">
   <div>
-    <h1>{{ isEdit ? 'Edit hotel' : 'New hotel' }}</h1>
+    <h1>{{ (isEdit ? 'hotels.form.titleEdit' : 'hotels.form.titleNew') | t }}</h1>
     <p class="page-subtitle">
-      <a routerLink="/hotels">Hotels</a> / {{ isEdit ? 'Edit' : 'New' }}
+      <a routerLink="/hotels">{{ 'hotels.list.title' | t }}</a> /
+      @if (isEdit) {
+        <a [routerLink]="['/hotels', id()]">{{ 'hotels.form.crumbHotel' | t }}</a> / {{ 'hotels.form.crumbEdit' | t }}
+      } @else {
+        {{ 'hotels.form.crumbNew' | t }}
+      }
     </p>
   </div>
 </div>
@@ -13,22 +18,22 @@
 
 <form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
   <div class="card-body">
-    <h2 class="section-title">General information</h2>
+    <h2 class="section-title">{{ 'hotels.form.general' | t }}</h2>
 
     <div class="field">
-      <label for="name">Name</label>
+      <label for="name">{{ 'hotels.form.name' | t }}</label>
       <input id="name" formControlName="name" />
       @if (showError('name')) {
-        <span class="field-error">Name is required (max. 150 characters).</span>
+        <span class="field-error">{{ 'hotels.form.nameError' | t }}</span>
       }
     </div>
 
     <div class="row">
       <div class="field">
-        <label for="stars">Category</label>
+        <label for="stars">{{ 'hotels.form.category' | t }}</label>
         <select id="stars" formControlName="stars">
           @for (s of starOptions; track s) {
-            <option [ngValue]="s">{{ s }} {{ s === 1 ? 'star' : 'stars' }}</option>
+            <option [ngValue]="s">{{ 'common.stars' | t: { count: s } }}</option>
           }
         </select>
       </div>
@@ -36,24 +41,24 @@
       <div class="field checkbox-field">
         <label class="checkbox">
           <input type="checkbox" formControlName="isActive" />
-          Active (available for new bookings)
+          {{ 'hotels.form.activeLabel' | t }}
         </label>
       </div>
     </div>
 
-    <h2 class="section-title">Location</h2>
+    <h2 class="section-title">{{ 'hotels.form.location' | t }}</h2>
 
     <div class="row">
       <div class="field">
-        <label for="city">City</label>
+        <label for="city">{{ 'hotels.form.city' | t }}</label>
         <input id="city" formControlName="city" />
         @if (showError('city')) {
-          <span class="field-error">City is required.</span>
+          <span class="field-error">{{ 'hotels.form.cityError' | t }}</span>
         }
       </div>
 
       <div class="field">
-        <label for="country">Country</label>
+        <label for="country">{{ 'hotels.form.country' | t }}</label>
         <!-- datalist: suggests existing countries but still lets the user type a new one -->
         <input id="country" formControlName="country" list="country-list" />
         <datalist id="country-list">
@@ -62,38 +67,38 @@
           }
         </datalist>
         @if (showError('country')) {
-          <span class="field-error">Country is required.</span>
+          <span class="field-error">{{ 'hotels.form.countryError' | t }}</span>
         }
       </div>
     </div>
 
     <div class="field">
-      <label for="address">Address <span class="optional">(optional)</span></label>
+      <label for="address">{{ 'hotels.form.address' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
       <input id="address" formControlName="address" />
     </div>
 
-    <h2 class="section-title">Contact</h2>
+    <h2 class="section-title">{{ 'hotels.form.contact' | t }}</h2>
 
     <div class="row">
       <div class="field">
-        <label for="email">Email <span class="optional">(optional)</span></label>
+        <label for="email">{{ 'hotels.form.email' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
         <input id="email" type="email" formControlName="email" />
         @if (showError('email')) {
-          <span class="field-error">Enter a valid email address.</span>
+          <span class="field-error">{{ 'hotels.form.emailError' | t }}</span>
         }
       </div>
 
       <div class="field">
-        <label for="phone">Phone <span class="optional">(optional)</span></label>
+        <label for="phone">{{ 'hotels.form.phone' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
         <input id="phone" formControlName="phone" />
       </div>
     </div>
   </div>
 
   <div class="form-actions">
-    <a class="btn" routerLink="/hotels">Cancel</a>
+    <a class="btn" [routerLink]="isEdit ? ['/hotels', id()] : ['/hotels']">{{ 'common.cancel' | t }}</a>
     <button class="btn btn-primary" type="submit" [disabled]="saving()">
-      {{ saving() ? 'Saving...' : 'Save hotel' }}
+      {{ (saving() ? 'common.saving' : 'hotels.form.save') | t }}
     </button>
   </div>
 </form>

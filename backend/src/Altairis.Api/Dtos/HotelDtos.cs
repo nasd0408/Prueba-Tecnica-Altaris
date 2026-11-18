@@ -15,7 +15,8 @@ public record HotelDto(
     string? Email,
     string? Phone,
     bool IsActive,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    int RoomCount);
 
 // Same request for create and update: both need exactly the same fields and rules.
 // DataAnnotations are enough here; [ApiController] returns a 400 with the errors automatically.

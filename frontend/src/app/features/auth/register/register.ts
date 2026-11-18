@@ -4,12 +4,14 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { describeApiError } from '../../../core/http/api-error';
+import { translate } from '../../../core/i18n/translate';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 import { fieldsMatch } from '../../../shared/validators';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './register.html',
 })
 export class Register {
@@ -33,10 +35,7 @@ export class Register {
 
   constructor() {
     // Be upfront in the demo: account creation has no identity verification yet.
-    inject(SnackbarService).show(
-      'MFA is not implemented yet: accounts are created without email or phone verification.',
-      'warning',
-    );
+    inject(SnackbarService).show(translate('auth.register.mfaWarning'), 'warning');
   }
 
   async submit(): Promise<void> {
@@ -54,7 +53,7 @@ export class Register {
       // Not signing in automatically: keeps the flow simple and lets the user try the credentials once.
       await this.router.navigate(['/login'], { queryParams: { registered: 1 } });
     } catch (err) {
-      this.error.set(describeApiError(err, 'The account could not be created.'));
+      this.error.set(describeApiError(err, 'auth.register.failed'));
     } finally {
       this.submitting.set(false);
     }

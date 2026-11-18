@@ -1,4 +1,5 @@
 using Altairis.Api.Dtos;
+using Altairis.Api.Errors;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -40,10 +41,10 @@ public class AuthController(
             request.UserName.Trim(), request.Password, isPersistent: false, lockoutOnFailure: true);
 
         if (result.IsLockedOut)
-            return Problem("Account temporarily locked. Try again in a few minutes.", statusCode: StatusCodes.Status423Locked);
+            return this.Error(StatusCodes.Status423Locked, ApiErrors.AccountLocked());
 
         if (!result.Succeeded)
-            return Problem("Incorrect username or password.", statusCode: StatusCodes.Status401Unauthorized);
+            return this.Error(StatusCodes.Status401Unauthorized, ApiErrors.InvalidCredentials());
 
         return new EmptyResult(); // body already written by the bearer handler
     }
@@ -91,7 +92,7 @@ public class AuthController(
     {
         var user = await users.FindByNameAsync(request.UserName.Trim());
         if (user is null)
-            return Problem("User not found.", statusCode: StatusCodes.Status404NotFound);
+            return this.Error(StatusCodes.Status404NotFound, ApiErrors.UserNotFound());
 
         // Going through the reset token (instead of RemovePassword + AddPassword) means Identity
         // validates the new password, updates the security stamp (old sessions can't refresh)
@@ -105,12 +106,10 @@ public class AuthController(
         return NoContent();
     }
 
-    // Identity errors -> standard 400 ValidationProblem, the same shape as DataAnnotations errors,
-    // so the frontend handles both with one function.
-    private IActionResult IdentityProblem(IdentityResult result)
-    {
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-        return ValidationProblem(ModelState);
-    }
+    // Identity already gives each problem a code (PasswordTooShort, DuplicateUserName...):
+    // they're passed on as args so the frontend translates each one.
+    private IActionResult IdentityProblem(IdentityResult result) =>
+        this.Error(StatusCodes.Status400BadRequest, ApiErrors.IdentityFailed(
+            result.Errors.Select(e => e.Code),
+            string.Join(" ", result.Errors.Select(e => e.Description))));
 }

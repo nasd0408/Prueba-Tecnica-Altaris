@@ -1,0 +1,102 @@
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+  <a routerLink="/reservations">{{ 'reservations.detail.back' | t }}</a>
+}
+
+@if (reservation(); as r) {
+  <div class="page-header">
+    <div>
+      <p class="breadcrumb"><a routerLink="/reservations">{{ 'reservations.list.title' | t }}</a> / {{ r.code }}</p>
+      <h1>
+        <span class="code">{{ r.code }}</span>
+        <app-status-badge [status]="r.status" />
+      </h1>
+      <p class="page-subtitle">{{ r.guestName }} &middot; {{ r.hotelName }}</p>
+    </div>
+    <div class="header-actions">
+      @for (a of actions(); track a.action) {
+        <button
+          type="button"
+          class="btn"
+          [class.btn-primary]="a.primary"
+          [class.btn-danger]="a.danger"
+          [disabled]="busy()"
+          (click)="run(a)"
+        >
+          {{ a.label | t }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="card">
+      <div class="card-header"><h2>{{ 'reservations.detail.stay' | t }}</h2></div>
+      <div class="card-body stay">
+        <div class="dates">
+          <div>
+            <span class="label">{{ 'reservations.detail.checkIn' | t }}</span>
+            <strong>{{ r.checkIn | date: 'EEE d MMM y' }}</strong>
+          </div>
+          <span class="arrow">&rarr;</span>
+          <div>
+            <span class="label">{{ 'reservations.detail.checkOut' | t }}</span>
+            <strong>{{ r.checkOut | date: 'EEE d MMM y' }}</strong>
+          </div>
+          <div class="nights">{{ 'common.nights' | t: { count: r.nights } }}</div>
+        </div>
+
+        <dl class="grid">
+          <div>
+            <dt>{{ 'reservations.detail.hotel' | t }}</dt>
+            <dd><a [routerLink]="['/hotels', r.hotelId]">{{ r.hotelName }}</a><br /><span class="muted">{{ r.city }}, {{ r.country }}</span></dd>
+          </div>
+          <div>
+            <dt>{{ 'reservations.detail.roomType' | t }}</dt>
+            <dd>{{ r.roomTypeName }} &times; {{ r.rooms }}<br /><span class="muted">{{ 'reservations.detail.maxGuests' | t: { count: r.capacity * r.rooms } }}</span></dd>
+          </div>
+          <div>
+            <dt>{{ 'reservations.detail.guests' | t }}</dt>
+            <dd>{{ r.guests }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'reservations.detail.totalPrice' | t }}</dt>
+            <dd class="price">{{ r.totalPrice | currency }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>{{ 'reservations.detail.guest' | t }}</h2></div>
+      <dl class="card-body">
+        <dt>{{ 'reservations.detail.name' | t }}</dt>
+        <dd>{{ r.guestName }}</dd>
+        <dt>{{ 'reservations.detail.email' | t }}</dt>
+        <dd><a [href]="'mailto:' + r.guestEmail">{{ r.guestEmail }}</a></dd>
+        <dt>{{ 'reservations.detail.phone' | t }}</dt>
+        <dd>{{ r.guestPhone || '-' }}</dd>
+        <dt>{{ 'reservations.detail.notes' | t }}</dt>
+        <dd>{{ r.notes || '-' }}</dd>
+      </dl>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>{{ 'reservations.detail.history' | t }}</h2></div>
+      <dl class="card-body">
+        <dt>{{ 'reservations.detail.booked' | t }}</dt>
+        <dd>{{ r.createdAt | date: 'dd/MM/yyyy HH:mm' }} <span class="muted">{{ 'reservations.detail.by' | t: { user: r.createdBy || ('reservations.detail.unknownUser' | t) } }}</span></dd>
+        @if (r.cancelledAt) {
+          <dt>{{ 'reservations.detail.cancelled' | t }}</dt>
+          <dd>{{ r.cancelledAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        }
+        <dt>{{ 'reservations.detail.inventory' | t }}</dt>
+        <dd>
+          <a [routerLink]="['/hotels', r.hotelId, 'availability']">{{ 'reservations.detail.viewAvailability' | t }}</a>
+        </dd>
+      </dl>
+    </section>
+  </div>
+} @else if (!error()) {
+  <p class="muted">{{ 'reservations.detail.loading' | t }}</p>
+}

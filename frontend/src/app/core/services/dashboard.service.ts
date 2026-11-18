@@ -13,6 +13,7 @@ export interface DashboardSummary {
   activeHotels: number;
   countries: number;
   cities: number;
+  rooms: number;
   hotelsByCountry: CountItem[];
   hotelsByStars: CountItem[];
   latestHotels: Hotel[];

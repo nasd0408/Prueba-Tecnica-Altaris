@@ -94,6 +94,10 @@ nav {
   gap: 10px;
 }
 
+.user app-language-switch {
+  margin-right: 8px;
+}
+
 .avatar {
   display: inline-flex;
   align-items: center;

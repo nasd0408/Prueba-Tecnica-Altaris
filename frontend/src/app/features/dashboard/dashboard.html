@@ -1,9 +1,9 @@
 <div class="page-header">
   <div>
-    <h1>Dashboard</h1>
-    <p class="page-subtitle">Overview of the hotel catalogue.</p>
+    <h1>{{ 'dashboard.title' | t }}</h1>
+    <p class="page-subtitle">{{ 'dashboard.subtitle' | t }}</p>
   </div>
-  <button type="button" class="btn" (click)="load()">Refresh</button>
+  <button type="button" class="btn" (click)="load()">{{ 'common.refresh' | t }}</button>
 </div>
 
 @if (error()) {
@@ -13,27 +13,29 @@
 @if (summary(); as s) {
   <div class="kpis">
     <div class="card kpi">
-      <span class="kpi-label">Hotels in catalogue</span>
+      <span class="kpi-label">{{ 'dashboard.hotelsInCatalogue' | t }}</span>
       <span class="kpi-value">{{ s.totalHotels | number }}</span>
     </div>
     <div class="card kpi">
-      <span class="kpi-label">Active hotels</span>
+      <span class="kpi-label">{{ 'dashboard.activeHotels' | t }}</span>
       <span class="kpi-value">{{ s.activeHotels | number }}</span>
-      <span class="kpi-note">{{ activeRate() }}% of the catalogue</span>
+      <span class="kpi-note">{{ 'dashboard.activeRate' | t: { rate: activeRate() } }}</span>
     </div>
     <div class="card kpi">
-      <span class="kpi-label">Countries</span>
-      <span class="kpi-value">{{ s.countries }}</span>
-    </div>
-    <div class="card kpi">
-      <span class="kpi-label">Cities</span>
+      <span class="kpi-label">{{ 'dashboard.destinations' | t }}</span>
       <span class="kpi-value">{{ s.cities }}</span>
+      <span class="kpi-note">{{ 'dashboard.destinationsNote' | t: { countries: s.countries } }}</span>
+    </div>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'dashboard.roomsOnSale' | t }}</span>
+      <span class="kpi-value">{{ s.rooms | number }}</span>
+      <span class="kpi-note">{{ 'dashboard.roomsOnSaleNote' | t: { avg: s.totalHotels ? (s.rooms / s.totalHotels | number: '1.1-1') : 0 } }}</span>
     </div>
   </div>
 
   <div class="grid">
     <section class="card">
-      <div class="card-header"><h2>Hotels by country</h2><span class="muted">Top 8</span></div>
+      <div class="card-header"><h2>{{ 'dashboard.byCountry' | t }}</h2><span class="muted">{{ 'dashboard.topCountries' | t }}</span></div>
       <div class="card-body">
         @if (byCountryChart(); as config) {
           <app-chart [config]="config" [height]="280" />
@@ -42,7 +44,7 @@
     </section>
 
     <section class="card">
-      <div class="card-header"><h2>Hotels by category</h2></div>
+      <div class="card-header"><h2>{{ 'dashboard.byCategory' | t }}</h2></div>
       <div class="card-body">
         @if (byStarsChart(); as config) {
           <app-chart [config]="config" [height]="280" />
@@ -53,29 +55,29 @@
 
   <section class="card">
     <div class="card-header">
-      <h2>Latest hotels added</h2>
-      <a routerLink="/hotels">View all</a>
+      <h2>{{ 'dashboard.latestHotels' | t }}</h2>
+      <a routerLink="/hotels">{{ 'dashboard.viewAll' | t }}</a>
     </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>City</th>
-            <th>Country</th>
-            <th>Status</th>
-            <th>Added</th>
+            <th>{{ 'dashboard.name' | t }}</th>
+            <th>{{ 'dashboard.city' | t }}</th>
+            <th>{{ 'dashboard.country' | t }}</th>
+            <th>{{ 'dashboard.status' | t }}</th>
+            <th>{{ 'dashboard.added' | t }}</th>
           </tr>
         </thead>
         <tbody>
           @for (h of s.latestHotels; track h.id) {
             <tr>
-              <td><a [routerLink]="['/hotels', h.id, 'edit']">{{ h.name }}</a></td>
+              <td><a [routerLink]="['/hotels', h.id]">{{ h.name }}</a></td>
               <td>{{ h.city }}</td>
               <td>{{ h.country }}</td>
               <td>
                 <span [class]="h.isActive ? 'badge badge-success' : 'badge badge-neutral'">
-                  {{ h.isActive ? 'Active' : 'Inactive' }}
+                  {{ (h.isActive ? 'common.active' : 'common.inactive') | t }}
                 </span>
               </td>
               <td>{{ h.createdAt | date: 'dd/MM/yyyy' }}</td>
@@ -86,5 +88,5 @@
     </div>
   </section>
 } @else if (!error()) {
-  <p class="muted">Loading dashboard...</p>
+  <p class="muted">{{ 'dashboard.loading' | t }}</p>
 }

@@ -1,0 +1,72 @@
+<div class="page-header">
+  <div>
+    <h1>{{ 'catalogues.amenities.title' | t }}</h1>
+    <p class="page-subtitle">{{ 'catalogues.amenities.subtitle' | t }}</p>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="startCreate()" [disabled]="editing() === 'new'">
+    {{ 'catalogues.amenities.new' | t }}
+  </button>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+<ng-template #editor>
+  <form class="editor inline-editor" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    @if (formError()) {
+      <div class="alert alert-error">{{ formError() }}</div>
+    }
+    <div class="inline-editor-row">
+      <div class="field">
+        <label for="amenity-name">{{ 'catalogues.amenities.name' | t }}</label>
+        <input id="amenity-name" formControlName="name" [placeholder]="'catalogues.amenities.namePlaceholder' | t" />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <span class="field-error">{{ 'catalogues.amenities.nameError' | t }}</span>
+        }
+      </div>
+      <div class="editor-actions">
+        <button type="button" class="btn btn-sm" (click)="cancelEdit()">{{ 'common.cancel' | t }}</button>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+          {{ (saving() ? 'common.saving' : 'common.save') | t }}
+        </button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<div class="card narrow">
+  @if (editing() === 'new') {
+    <ng-container [ngTemplateOutlet]="editor" />
+  }
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ 'catalogues.amenities.name' | t }}</th>
+          <th class="num">{{ 'catalogues.amenities.columnRooms' | t }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of amenities(); track a.id) {
+          @if (isEditing(a)) {
+            <tr class="editing-row">
+              <td colspan="3"><ng-container [ngTemplateOutlet]="editor" /></td>
+            </tr>
+          } @else {
+            <tr>
+              <td>{{ a.name }}</td>
+              <td class="num">{{ a.roomCount | number }}</td>
+              <td class="num"><button type="button" class="link-button" (click)="startEdit(a)">{{ 'common.edit' | t }}</button></td>
+            </tr>
+          }
+        } @empty {
+          <tr>
+            <td colspan="3" class="muted">{{ (loading() ? 'common.loading' : 'catalogues.amenities.empty') | t }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

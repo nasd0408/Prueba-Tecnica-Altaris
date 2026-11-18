@@ -1,9 +1,9 @@
 <div class="page-header">
   <div>
-    <h1>Hotels</h1>
-    <p class="page-subtitle">Hotel catalogue. Search by name or city, filter by country and category.</p>
+    <h1>{{ 'hotels.list.title' | t }}</h1>
+    <p class="page-subtitle">{{ 'hotels.list.subtitle' | t }}</p>
   </div>
-  <a class="btn btn-primary" routerLink="/hotels/new">New hotel</a>
+  <a class="btn btn-primary" routerLink="/hotels/new">{{ 'hotels.list.new' | t }}</a>
 </div>
 
 @if (error()) {
@@ -17,30 +17,28 @@
     <input
       type="search"
       class="search"
-      placeholder="Search by name or city"
+      [placeholder]="'hotels.list.searchPlaceholder' | t"
       [formControl]="searchControl"
     />
 
     <select (change)="onCountryChange($any($event.target).value)">
-      <option value="">All countries</option>
+      <option value="">{{ 'common.allCountries' | t }}</option>
       @for (country of countries(); track country) {
         <option [value]="country" [selected]="country === query().country">{{ country }}</option>
       }
     </select>
 
     <select (change)="onStarsChange($any($event.target).value)">
-      <option value="">Any category</option>
+      <option value="">{{ 'common.anyCategory' | t }}</option>
       @for (s of starOptions; track s) {
-        <option [value]="s" [selected]="s === query().stars">{{ s }} {{ s === 1 ? 'star' : 'stars' }}</option>
+        <option [value]="s" [selected]="s === query().stars">{{ 'common.stars' | t: { count: s } }}</option>
       }
     </select>
 
-    <button type="button" class="btn" (click)="clearFilters()">Clear filters</button>
+    <button type="button" class="btn" (click)="clearFilters()">{{ 'common.clearFilters' | t }}</button>
 
     @if (result(); as r) {
-      <span class="result-count muted">
-        {{ r.totalCount.toLocaleString() }} {{ r.totalCount === 1 ? 'hotel' : 'hotels' }}
-      </span>
+      <span class="result-count muted">{{ 'hotels.list.count' | t: { count: r.totalCount } }}</span>
     }
   </div>
 
@@ -49,35 +47,37 @@
       <table [class.loading]="loading()">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>City</th>
-            <th>Country</th>
-            <th>Category</th>
-            <th>Status</th>
+            <th>{{ 'hotels.list.name' | t }}</th>
+            <th>{{ 'hotels.list.city' | t }}</th>
+            <th>{{ 'hotels.list.country' | t }}</th>
+            <th>{{ 'hotels.list.category' | t }}</th>
+            <th class="num">{{ 'hotels.list.roomTypes' | t }}</th>
+            <th>{{ 'hotels.list.status' | t }}</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           @for (hotel of r.items; track hotel.id) {
             <tr>
-              <td class="name">{{ hotel.name }}</td>
+              <td class="name"><a [routerLink]="['/hotels', hotel.id]">{{ hotel.name }}</a></td>
               <td>{{ hotel.city }}</td>
               <td>{{ hotel.country }}</td>
-              <td class="stars" [title]="hotel.stars + ' stars'">{{ stars(hotel.stars) }}</td>
+              <td class="stars" [title]="'common.stars' | t: { count: hotel.stars }">{{ stars(hotel.stars) }}</td>
+              <td class="num">{{ hotel.roomCount }}</td>
               <td>
                 @if (hotel.isActive) {
-                  <span class="badge badge-success">Active</span>
+                  <span class="badge badge-success">{{ 'common.active' | t }}</span>
                 } @else {
-                  <span class="badge badge-neutral">Inactive</span>
+                  <span class="badge badge-neutral">{{ 'common.inactive' | t }}</span>
                 }
               </td>
               <td class="actions">
-                <a [routerLink]="['/hotels', hotel.id, 'edit']">Edit</a>
+                <a [routerLink]="['/hotels', hotel.id, 'edit']">{{ 'common.edit' | t }}</a>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" class="empty muted">No hotels match these filters.</td>
+              <td colspan="7" class="empty muted">{{ 'hotels.list.empty' | t }}</td>
             </tr>
           }
         </tbody>
@@ -86,7 +86,7 @@
 
     <div class="pager">
       <label class="page-size">
-        Rows per page
+        {{ 'common.rowsPerPage' | t }}
         <select (change)="onPageSizeChange($any($event.target).value)">
           @for (size of pageSizes; track size) {
             <option [value]="size" [selected]="size === query().pageSize">{{ size }}</option>
@@ -94,20 +94,20 @@
         </select>
       </label>
 
-      <span class="page-info">Page {{ r.page }} of {{ r.totalPages || 1 }}</span>
+      <span class="page-info">{{ 'common.pageOf' | t: { page: r.page, total: r.totalPages || 1 } }}</span>
 
-      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(1)">First</button>
+      <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(1)">{{ 'common.first' | t }}</button>
       <button class="btn btn-sm" type="button" [disabled]="r.page <= 1" (click)="goToPage(r.page - 1)">
-        Previous
+        {{ 'common.previous' | t }}
       </button>
       <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.page + 1)">
-        Next
+        {{ 'common.next' | t }}
       </button>
       <button class="btn btn-sm" type="button" [disabled]="r.page >= r.totalPages" (click)="goToPage(r.totalPages)">
-        Last
+        {{ 'common.last' | t }}
       </button>
     </div>
   } @else if (loading()) {
-    <p class="empty muted">Loading hotels...</p>
+    <p class="empty muted">{{ 'hotels.list.loading' | t }}</p>
   }
 </div>

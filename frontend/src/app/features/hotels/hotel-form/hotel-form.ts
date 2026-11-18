@@ -3,6 +3,8 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 
 import { describeApiError } from '../../../core/http/api-error';
+import { translate } from '../../../core/i18n/translate';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { SaveHotelRequest } from '../../../core/models/hotel';
 import { HotelService } from '../../../core/services/hotel.service';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
@@ -11,7 +13,7 @@ import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 // If `id` comes in the route it's an edit, otherwise it's a new hotel.
 @Component({
   selector: 'app-hotel-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './hotel-form.html',
   styleUrl: './hotel-form.css',
 })
@@ -61,7 +63,7 @@ export class HotelForm implements OnInit {
         phone: hotel.phone ?? '',
       });
     } catch {
-      this.error.set('Hotel not found.');
+      this.error.set(translate('hotels.form.notFound'));
     }
   }
 
@@ -96,10 +98,11 @@ export class HotelForm implements OnInit {
         ? await this.hotelService.updateHotel(+id, request)
         : await this.hotelService.createHotel(request);
 
-      this.snackbar.show(`Hotel "${saved.name}" ${id ? 'updated' : 'created'}.`, 'success');
-      await this.router.navigate(['/hotels']);
+      this.snackbar.show(translate(id ? 'hotels.form.updated' : 'hotels.form.created', { name: saved.name }), 'success');
+      // Go to the hotel page: after creating a hotel the next step is adding its room types.
+      await this.router.navigate(['/hotels', saved.id]);
     } catch (err) {
-      this.error.set(describeApiError(err, 'The hotel could not be saved. Please try again.'));
+      this.error.set(describeApiError(err, 'hotels.form.failed'));
     } finally {
       this.saving.set(false);
     }

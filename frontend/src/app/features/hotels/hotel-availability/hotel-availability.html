@@ -1,0 +1,200 @@
+@if (error() && !hotel()) {
+  <div class="alert alert-error">{{ error() }}</div>
+  <a routerLink="/hotels">{{ 'hotels.detail.backToHotels' | t }}</a>
+}
+
+@if (hotel(); as h) {
+  <div class="page-header">
+    <div>
+      <p class="breadcrumb">
+        <a routerLink="/hotels">{{ 'hotels.list.title' | t }}</a> / <a [routerLink]="['/hotels', h.id]">{{ h.name }}</a> / {{ 'availability.title' | t }}
+      </p>
+      <h1>{{ 'availability.title' | t }}</h1>
+      <p class="page-subtitle">{{ h.name }} &middot; {{ h.city }}, {{ h.country }}</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="openForm()" [disabled]="!grid()?.rooms?.length">
+      {{ 'availability.load' | t }}
+    </button>
+  </div>
+
+  @if (formOpen()) {
+    <form class="card bulk" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="card-header">
+        <h2>{{ 'availability.load' | t }}</h2>
+        <span class="muted">{{ 'availability.loadHint' | t }}</span>
+      </div>
+      <div class="card-body">
+        @if (formError()) {
+          <div class="alert alert-error">{{ formError() }}</div>
+        }
+
+        <div class="bulk-grid">
+          <fieldset class="group">
+            <legend>{{ 'availability.rooms' | t }}</legend>
+            @for (room of grid()?.rooms ?? []; track room.roomId) {
+              <label class="check">
+                <input type="checkbox" [checked]="selectedRooms().has(room.roomId)" (change)="toggleRoom(room.roomId)" />
+                {{ room.roomTypeName }}
+              </label>
+            }
+          </fieldset>
+
+          <div>
+            <div class="row">
+              <div class="field">
+                <label for="bulk-from">{{ 'availability.from' | t }}</label>
+                <input id="bulk-from" type="date" [min]="minDate" formControlName="from" />
+              </div>
+              <div class="field">
+                <label for="bulk-to">{{ 'availability.to' | t }}</label>
+                <input id="bulk-to" type="date" [min]="form.controls.from.value" formControlName="to" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>{{ 'availability.daysOfWeek' | t }} <span class="optional">{{ 'availability.daysHint' | t }}</span></label>
+              <div class="day-toggles">
+                @for (d of weekDays; track d.value) {
+                  <button
+                    type="button"
+                    class="day-toggle"
+                    [class.on]="selectedDays().has(d.value)"
+                    [attr.aria-pressed]="selectedDays().has(d.value)"
+                    (click)="toggleDay(d.value)"
+                  >
+                    {{ d.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="field">
+              <label for="bulk-total">{{ 'availability.roomsOnSale' | t }}</label>
+              <input id="bulk-total" type="number" min="0" max="1000" formControlName="totalRooms" />
+              <span class="field-help">{{ 'availability.stopSellHelp' | t }}</span>
+            </div>
+            <div class="field">
+              <label for="bulk-price">{{ 'availability.specialPrice' | t }} <span class="optional">{{ 'common.optional' | t }}</span></label>
+              <input
+                id="bulk-price"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="price"
+                [placeholder]="'availability.keepPrice' | t"
+              />
+            </div>
+            <label class="check">
+              <input type="checkbox" formControlName="resetPrice" />
+              {{ 'availability.resetPrice' | t }}
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn" (click)="formOpen.set(false)">{{ 'common.cancel' | t }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ (saving() ? 'common.saving' : 'availability.save') | t }}
+        </button>
+      </div>
+    </form>
+  }
+
+  <div class="card">
+    <div class="toolbar">
+      <button type="button" class="btn btn-sm" (click)="shift(-1)">&lsaquo; {{ 'availability.previousPeriod' | t }}</button>
+      <button type="button" class="btn btn-sm" (click)="goToday()">{{ 'common.today' | t }}</button>
+      <button type="button" class="btn btn-sm" (click)="shift(1)">{{ 'availability.nextPeriod' | t }} &rsaquo;</button>
+      <input type="date" [value]="from()" (change)="setFrom($any($event.target).value)" [attr.aria-label]="'availability.startDate' | t" />
+      <select (change)="setRange($any($event.target).value)" [attr.aria-label]="'availability.numberOfDays' | t">
+        @for (n of rangeOptions; track n) {
+          <option [value]="n" [selected]="n === rangeDays()">{{ 'availability.days' | t: { count: n } }}</option>
+        }
+      </select>
+
+      <div class="legend">
+        <span><i class="swatch low"></i>{{ 'availability.legend.low' | t }}</span>
+        <span><i class="swatch mid"></i>{{ 'availability.legend.mid' | t }}</span>
+        <span><i class="swatch high"></i>{{ 'availability.legend.high' | t }}</span>
+        <span><i class="swatch full"></i>{{ 'availability.legend.full' | t }}</span>
+        <span><i class="swatch closed"></i>{{ 'availability.legend.closed' | t }}</span>
+        <span><i class="swatch empty"></i>{{ 'availability.legend.empty' | t }}</span>
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error grid-alert">{{ error() }}</div>
+    }
+
+    @if (grid(); as g) {
+      @if (g.rooms.length === 0) {
+        <p class="empty muted">
+          {{ 'availability.noRooms' | t }} <a [routerLink]="['/hotels', h.id]">{{ 'availability.addRooms' | t }}</a> {{ 'availability.beforeLoading' | t }}
+        </p>
+      } @else {
+        <div class="grid-wrap" [class.loading]="loading()">
+          <table class="avail">
+            <thead>
+              <tr>
+                <th class="room-col">{{ 'availability.room' | t }}</th>
+                @for (date of dates(); track date) {
+                  <th class="day-col" [class.weekend]="isWeekend(date)" [class.today]="date === minDate">
+                    <span class="dow">{{ date | date: 'EEE' }}</span>
+                    <span class="dom">{{ date | date: 'd MMM' }}</span>
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (room of g.rooms; track room.roomId) {
+                <tr>
+                  <th class="room-col" scope="row">
+                    {{ room.roomTypeName }}
+                    <span class="muted base">{{ 'availability.base' | t: { price: (room.basePrice | currency: 'EUR' : 'symbol' : '1.0-0') } }}</span>
+                  </th>
+                  @for (day of room.days; track $index) {
+                    <td
+                      [class]="'cell ' + level(day)"
+                      [class.past]="dates()[$index] < minDate"
+                      [title]="cellTitle(room, day, dates()[$index])"
+                      (click)="editCell(room, day, dates()[$index])"
+                    >
+                      @if (day) {
+                        <span class="avail-num">{{ day.availableRooms }}</span><span class="of">/{{ day.totalRooms }}</span>
+                        <span class="price" [class.special]="day.priceOverridden">{{ day.price | currency: 'EUR' : 'symbol' : '1.0-0' }}</span>
+                      } @else {
+                        <span class="muted">-</span>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th class="room-col" scope="row">{{ 'availability.hotelTotal' | t }}</th>
+                @for (t of nightTotals(); track $index) {
+                  <td class="total-cell">
+                    @if (t.occupancy !== null) {
+                      <strong>{{ t.occupancy * 100 | number: '1.0-0' }}%</strong>
+                      <span class="muted">{{ 'availability.free' | t: { count: t.available } }}</span>
+                    } @else {
+                      <span class="muted">-</span>
+                    }
+                  </td>
+                }
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="hint muted">{{ 'availability.hint' | t }}</p>
+      }
+    } @else if (loading()) {
+      <p class="empty muted">{{ 'availability.loading' | t }}</p>
+    }
+  </div>
+} @else if (!error()) {
+  <p class="muted">{{ 'availability.loadingHotel' | t }}</p>
+}

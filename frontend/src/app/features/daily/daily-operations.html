@@ -1,0 +1,112 @@
+<div class="page-header">
+  <div>
+    <h1>{{ (isToday() ? 'daily.titleToday' : 'daily.title') | t }}</h1>
+    <p class="page-subtitle">{{ date() | date: 'fullDate' }} &middot; {{ 'daily.subtitle' | t }}</p>
+  </div>
+  <div class="date-nav">
+    <button type="button" class="btn btn-sm" (click)="shift(-1)">&lsaquo; {{ 'daily.previousDay' | t }}</button>
+    <input type="date" [value]="date()" (change)="setDate($any($event.target).value)" [attr.aria-label]="'daily.date' | t" />
+    <button type="button" class="btn btn-sm" (click)="shift(1)">{{ 'daily.nextDay' | t }} &rsaquo;</button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+}
+
+@if (summary(); as s) {
+  <div class="kpis" [class.loading]="loading()">
+    <a class="card kpi" routerLink="/reservations" [queryParams]="arrivalsLink()">
+      <span class="kpi-label">{{ 'daily.arrivals' | t }}</span>
+      <span class="kpi-value">{{ s.arrivals | number }}</span>
+      <span class="kpi-note">
+        @if (s.arrivalsPending) {
+          <strong class="pending">{{ s.arrivalsPending | number }}</strong> {{ 'daily.arrivalsPending' | t }}
+        } @else {
+          {{ 'daily.allCheckedIn' | t }}
+        }
+      </span>
+    </a>
+    <a class="card kpi" routerLink="/reservations" [queryParams]="departuresLink()">
+      <span class="kpi-label">{{ 'daily.departures' | t }}</span>
+      <span class="kpi-value">{{ s.departures | number }}</span>
+      <span class="kpi-note">
+        @if (s.departuresPending) {
+          <strong class="pending">{{ s.departuresPending | number }}</strong> {{ 'daily.departuresPending' | t }}
+        } @else {
+          {{ 'daily.allCheckedOut' | t }}
+        }
+      </span>
+    </a>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'daily.inHouse' | t }}</span>
+      <span class="kpi-value">{{ s.inHouse | number }}</span>
+      <span class="kpi-note">{{ 'daily.inHouseNote' | t }}</span>
+    </div>
+    <a class="card kpi" routerLink="/reservations" [queryParams]="createdLink()">
+      <span class="kpi-label">{{ 'daily.newBookings' | t }}</span>
+      <span class="kpi-value">{{ s.newBookings | number }}</span>
+      <span class="kpi-note">{{ 'daily.bookedAmount' | t: { amount: (s.newBookingsRevenue | currency: 'EUR' : 'symbol' : '1.0-0') } }}</span>
+    </a>
+    <div class="card kpi">
+      <span class="kpi-label">{{ 'daily.cancellations' | t }}</span>
+      <span class="kpi-value">{{ s.cancellations | number }}</span>
+      <span class="kpi-note">
+        {{ 'daily.cancellationRate' | t: { rate: s.newBookings ? (s.cancellations / s.newBookings * 100 | number: '1.0-1') : 0 } }}
+      </span>
+    </div>
+  </div>
+
+  <div class="grid" [class.loading]="loading()">
+    <section class="card">
+      <div class="card-header">
+        <h2>{{ 'daily.chartTitle' | t }}</h2>
+        <span class="muted">{{ 'daily.top' | t: { count: topCountries().length } }}</span>
+      </div>
+      <div class="card-body">
+        @if (chart(); as config) {
+          <app-chart [config]="config" [height]="280" />
+        } @else {
+          <p class="muted">{{ 'daily.noActivity' | t }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>{{ 'daily.byCountry' | t }}</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'daily.country' | t }}</th>
+              <th class="num">{{ 'daily.arrivals' | t }}</th>
+              <th class="num">{{ 'daily.departures' | t }}</th>
+              <th class="num">{{ 'daily.inHouseColumn' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of s.byCountry; track c.country) {
+              <tr>
+                <td>{{ c.country }}</td>
+                <td class="num">{{ c.arrivals | number }}</td>
+                <td class="num">{{ c.departures | number }}</td>
+                <td class="num">{{ c.inHouse | number }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="muted">{{ 'daily.noActivity' | t }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <p class="quick-links">
+    {{ 'daily.goTo' | t }}
+    <a routerLink="/reservations" [queryParams]="arrivalsLink('Confirmed')">{{ 'daily.pendingCheckIns' | t }}</a> &middot;
+    <a routerLink="/reservations" [queryParams]="departuresLink('CheckedIn')">{{ 'daily.pendingCheckOuts' | t }}</a> &middot;
+    <a routerLink="/reservations/new">{{ 'daily.newReservation' | t }}</a>
+  </p>
+} @else if (loading()) {
+  <p class="muted">{{ 'common.loading' | t }}</p>
+}

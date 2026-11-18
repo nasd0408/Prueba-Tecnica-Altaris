@@ -11,14 +11,16 @@ export interface Hotel {
   phone: string | null;
   isActive: boolean;
   createdAt: string;
+  roomCount: number;
 }
 
-export type SaveHotelRequest = Omit<Hotel, 'id' | 'createdAt'>;
+export type SaveHotelRequest = Omit<Hotel, 'id' | 'createdAt' | 'roomCount'>;
 
 export interface HotelQuery {
   search?: string;
   country?: string;
   stars?: number;
+  isActive?: boolean;
   page: number;
   pageSize: number;
 }

@@ -12,6 +12,7 @@ export class HotelService {
     if (query.search) params['search'] = query.search;
     if (query.country) params['country'] = query.country;
     if (query.stars) params['stars'] = query.stars;
+    if (query.isActive !== undefined) params['isActive'] = String(query.isActive);
 
     const { data } = await api.get<PagedResult<Hotel>>('/hotels', { params, signal });
     return data;

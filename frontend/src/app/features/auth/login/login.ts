@@ -4,10 +4,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { describeApiError } from '../../../core/http/api-error';
+import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.html',
 })
 export class Login {
@@ -16,12 +17,13 @@ export class Login {
   private readonly params = inject(ActivatedRoute).snapshot.queryParamMap;
 
   // Messages coming from other screens (register/reset/expired session) via query params.
+  // Stored as i18n keys; the template translates them.
   readonly notice = this.params.has('registered')
-    ? 'Account created. You can sign in now.'
+    ? 'auth.login.registered'
     : this.params.has('reset')
-      ? 'Password updated. Sign in with your new password.'
+      ? 'auth.login.reset'
       : this.params.has('expired')
-        ? 'Your session has expired. Please sign in again.'
+        ? 'auth.login.expired'
         : null;
 
   readonly submitting = signal(false);
@@ -51,7 +53,7 @@ export class Login {
     } catch (err) {
       // The API answers with a generic message for wrong user OR wrong password on purpose:
       // it doesn't tell an attacker which of the two was wrong.
-      this.error.set(describeApiError(err, 'Sign in failed. Please try again.'));
+      this.error.set(describeApiError(err, 'auth.login.failed'));
     } finally {
       this.submitting.set(false);
     }

@@ -1,0 +1,180 @@
+@if (error()) {
+  <div class="alert alert-error">{{ error() }}</div>
+  <a routerLink="/hotels">{{ 'hotels.detail.backToHotels' | t }}</a>
+}
+
+@if (hotel(); as h) {
+  <div class="page-header">
+    <div>
+      <p class="breadcrumb"><a routerLink="/hotels">{{ 'hotels.list.title' | t }}</a> / {{ h.name }}</p>
+      <h1>
+        {{ h.name }}
+        @if (h.isActive) {
+          <span class="badge badge-success">{{ 'common.active' | t }}</span>
+        } @else {
+          <span class="badge badge-neutral">{{ 'common.inactive' | t }}</span>
+        }
+      </h1>
+      <p class="page-subtitle">{{ h.city }}, {{ h.country }} &middot; <span class="stars">{{ stars(h.stars) }}</span></p>
+    </div>
+    <div class="header-actions">
+      <a class="btn" [routerLink]="['/hotels', h.id, 'edit']">{{ 'hotels.detail.editHotel' | t }}</a>
+      <a class="btn" routerLink="/reservations" [queryParams]="{ hotelId: h.id }">{{ 'hotels.detail.reservations' | t }}</a>
+      <a class="btn" [routerLink]="['/hotels', h.id, 'availability']">{{ 'hotels.detail.availability' | t }}</a>
+      @if (h.isActive) {
+        <a class="btn btn-primary" routerLink="/reservations/new" [queryParams]="{ hotelId: h.id }">{{ 'hotels.detail.newReservation' | t }}</a>
+      }
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="card info">
+      <div class="card-header"><h2>{{ 'hotels.detail.details' | t }}</h2></div>
+      <dl class="card-body">
+        <dt>{{ 'hotels.detail.address' | t }}</dt>
+        <dd>{{ h.address || '-' }}</dd>
+        <dt>{{ 'hotels.detail.city' | t }}</dt>
+        <dd>{{ h.city }}</dd>
+        <dt>{{ 'hotels.detail.country' | t }}</dt>
+        <dd>{{ h.country }}</dd>
+        <dt>{{ 'hotels.detail.category' | t }}</dt>
+        <dd>{{ 'common.stars' | t: { count: h.stars } }}</dd>
+        <dt>{{ 'hotels.detail.email' | t }}</dt>
+        <dd>
+          @if (h.email) {
+            <a [href]="'mailto:' + h.email">{{ h.email }}</a>
+          } @else {
+            -
+          }
+        </dd>
+        <dt>{{ 'hotels.detail.phone' | t }}</dt>
+        <dd>{{ h.phone || '-' }}</dd>
+      </dl>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>{{ 'hotels.detail.rooms' | t }}</h2>
+          <span class="muted header-note">
+            {{ 'hotels.detail.onSale' | t: { count: rooms().length } }}
+            @if (rooms().length) {
+              &middot; {{ 'hotels.detail.upTo' | t: { max: maxCapacity() } }}
+            }
+          </span>
+        </div>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="startCreate()"
+          [disabled]="editing() === 'new' || (editing() === null && !availableRoomTypes().length)"
+          [title]="availableRoomTypes().length ? '' : ('hotels.detail.allOffered' | t)"
+        >
+          {{ 'hotels.detail.addRoom' | t }}
+        </button>
+      </div>
+
+      <!-- Editor shown above the table for "new", or replacing the row being edited (see below). -->
+      <ng-template #editor>
+        <form class="editor" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          @if (formError()) {
+            <div class="alert alert-error">{{ formError() }}</div>
+          }
+          <div class="editor-grid">
+            <div class="field">
+              <label for="room-type">{{ 'hotels.detail.roomType' | t }}</label>
+              <select id="room-type" formControlName="roomTypeId">
+                <option [ngValue]="0" disabled>{{ 'hotels.detail.selectRoomType' | t }}</option>
+                @for (t of availableRoomTypes(); track t.id) {
+                  <option [ngValue]="t.id">{{ 'hotels.detail.roomTypeOption' | t: { name: t.name, guests: ('common.guests' | t: { count: t.capacity }) } }}</option>
+                }
+              </select>
+              @if (showError('roomTypeId')) {
+                <span class="field-error">{{ 'hotels.detail.roomTypeError' | t }}</span>
+              } @else if (capacityOf(form.controls.roomTypeId.value); as cap) {
+                <span class="field-help">{{ 'hotels.detail.capacityHelp' | t: { guests: ('common.guests' | t: { count: cap }) } }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="room-price">{{ 'hotels.detail.basePrice' | t }}</label>
+              <input id="room-price" type="number" min="0" step="0.01" formControlName="basePrice" />
+              @if (showError('basePrice')) {
+                <span class="field-error">{{ 'hotels.detail.priceError' | t }}</span>
+              }
+            </div>
+          </div>
+
+          <fieldset class="amenities">
+            <legend>{{ 'hotels.detail.amenities' | t }} <span class="optional">{{ 'hotels.detail.selected' | t: { count: selectedAmenities().size } }}</span></legend>
+            @for (a of amenities(); track a.id) {
+              <label class="amenity-option">
+                <input type="checkbox" [checked]="selectedAmenities().has(a.id)" (change)="toggleAmenity(a.id)" />
+                {{ a.name }}
+              </label>
+            }
+          </fieldset>
+
+          <div class="editor-actions">
+            <button type="button" class="btn btn-sm" (click)="cancelEdit()">{{ 'common.cancel' | t }}</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+              {{ (saving() ? 'common.saving' : 'common.save') | t }}
+            </button>
+          </div>
+        </form>
+      </ng-template>
+
+      @if (editing() === 'new') {
+        <ng-container [ngTemplateOutlet]="editor" />
+      }
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'hotels.detail.roomType' | t }}</th>
+              <th class="num">{{ 'hotels.detail.capacity' | t }}</th>
+              <th>{{ 'hotels.detail.amenities' | t }}</th>
+              <th class="num">{{ 'hotels.detail.basePriceColumn' | t }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (room of rooms(); track room.id) {
+              @if (isEditing(room)) {
+                <tr class="editing-row">
+                  <td colspan="5"><ng-container [ngTemplateOutlet]="editor" /></td>
+                </tr>
+              } @else {
+                <tr>
+                  <td class="name">{{ room.roomTypeName }}</td>
+                  <td class="num">{{ room.capacity }}</td>
+                  <td>
+                    <div class="tags">
+                      @for (a of room.amenities; track a.id) {
+                        <span class="tag">{{ a.name }}</span>
+                      } @empty {
+                        <span class="muted">-</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="num">{{ room.basePrice | currency }}</td>
+                  <td class="actions">
+                    <button type="button" class="link-button" (click)="startEdit(room)">{{ 'common.edit' | t }}</button>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty muted">
+                  {{ 'hotels.detail.empty' | t }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+} @else if (loading()) {
+  <p class="muted">{{ 'hotels.detail.loading' | t }}</p>
+}

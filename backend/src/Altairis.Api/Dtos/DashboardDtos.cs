@@ -7,6 +7,7 @@ public record DashboardSummary(
     int ActiveHotels,
     int Countries,
     int Cities,
+    int Rooms,
     IReadOnlyList<CountItem> HotelsByCountry,
     IReadOnlyList<CountItem> HotelsByStars,
     IReadOnlyList<HotelDto> LatestHotels);

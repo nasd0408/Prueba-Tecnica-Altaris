@@ -1,0 +1,104 @@
+.breadcrumb {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stars {
+  color: #b7861b;
+  letter-spacing: 1px;
+}
+
+/* Narrow column for the hotel data, wide one for the room types table. */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+dl {
+  margin: 0;
+}
+
+dt {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+dd {
+  margin: 2px 0 14px;
+  word-break: break-word;
+}
+
+dd:last-child {
+  margin-bottom: 0;
+}
+
+.header-note {
+  display: block;
+  font-size: 12px;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.actions {
+  text-align: right;
+}
+
+.empty {
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.amenities {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px 12px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.amenities legend {
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.amenity-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}

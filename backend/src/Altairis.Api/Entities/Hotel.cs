@@ -20,4 +20,6 @@ public class Hotel
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; }
+
+    public List<Room> Rooms { get; set; } = [];
 }
